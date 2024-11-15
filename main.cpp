@@ -1,17 +1,20 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_stdinc.h>
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
 #include <iostream>
 #include <string>
 
+// TODO:
+// Bind enemy speed to background scroll speed and increment with each round
+// The increased scroll speed gives a more stressful feel
+
 /****************************** GLOBAL DATA ***********************************/
 
 // Global Game Variables
 SDL_Window* gameWindow = NULL;
 SDL_Renderer* renderer = NULL;
-SDL_Surface* tempSurface;
+SDL_Surface* tempSurface = NULL;
 
 // Static alien texture
 SDL_Texture* alienTextureSheet = NULL;      // Texture sheet to share for all alien objects
@@ -31,16 +34,16 @@ int playerLives = 3;
 // Interfaces
 // Struct to hold RGBA values
 struct RGB {
-  Uint8 r;  // Amount of red
-  Uint8 g;  // Amount of green
-  Uint8 b;  // Amount of blue
+  Uint8 r = 255;  // Amount of red
+  Uint8 g = 255;  // Amount of green
+  Uint8 b = 255;  // Amount of blue
   Uint8 a = 255;    // Alpha transparency (default opaque)
 };  // End RGB
 
 // Struct to hold (x, y) coordinates
 struct Point2d {
-  int x;    // x-coordinate
-  int y;    // y-coordinate
+  int x = 0;    // x-coordinate
+  int y = 0;    // y-coordinate
 };
 
 // Define directions for movement
@@ -53,7 +56,7 @@ enum class Direction : int {
 // Background object
 class Background {
   private:
-    SDL_Texture* texture; // Hold the background texture
+    SDL_Texture* texture = NULL; // Hold the background texture
     SDL_Rect rect;  // Render rectangle
     int yOffset = 0;  // Current y-offset for calculating scroll
     int scrollSpeed = 3;  // Speed at which BG scrolls in pixels
@@ -65,17 +68,18 @@ class Background {
 
   public:
     void scroll();  // Scroll the background by one tick
+    void speedUp(int speedIncrease);    // Increase the background scroll speed
     void draw();  // Draw the background to the render
 };
 
 // Animated sprite object
 class AnimatedSprite {
   protected:
-    SDL_Texture* textureSheet = NULL; // Texture for entire sheet - Private so we dont accidentally access it from child  // 4-8 bytes
+    SDL_Texture* textureSheet = NULL; // Texture for entire sheet
 
   protected:
     //Render variables
-    const std::string PATH; // Path to bitMap texture file
+    const std::string PATH = ""; // Path to bitMap texture file
     SDL_Rect rectPlacement; // Where to render the sprite on screen
     SDL_Rect rectSheet;   //  Rectangle to hold the entire sheet    //8 BYTES
     SDL_Rect rectSource;  // Rectangle to hold the current frame for placement
@@ -83,12 +87,12 @@ class AnimatedSprite {
     //Animation variables
     int spriteFrame = 0;  // Current animation frame
     int frameCounter = 0; // Hold the count to delay frame rendering
-    const int MAX_SPRITE_FRAME; // Number of animation frames
-    const int FRAME_DELAY;  // How many frames to delay rendering
+    const int MAX_SPRITE_FRAME = 1; // Number of animation frames
+    const int FRAME_DELAY = 5;  // How many frames to delay rendering
 
     //Attribute variables
-    int width;    // Width of a single sprite
-    int height;   // Height of a single sprite
+    int width = 0;    // Width of a single sprite
+    int height = 0;   // Height of a single sprite
     Point2d position = { 0, 0 };  // Current sprite location
     RGB transparency; // Sprite transparency color
     bool isDestroyed = false; // Sprite destruction state
@@ -152,7 +156,7 @@ const RGB hexToRGB(std::string_view hex);
 int main() {
   
   if(!Init()) {
-    std::cout << "Critical error, terminating program";
+    std::cout << "Critical error, terminating progra\nm";
     return 1;
   }
 
@@ -160,7 +164,7 @@ int main() {
   //Create game objects
   Background background("test/bg1080.bmp");
   AnimatedSprite sprite("test/sprite.bmp", 16, 3, "#00FF00");
-  Alien alien("test/ufos.bmp", 2, 30, "#00FF00");
+  Alien alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00");
 
   while(ProgramIsRunning())
   {
@@ -200,6 +204,10 @@ void Background::scroll() {
   if(yOffset >= SCREEN_HEIGHT)  //If the image has moved off the screen
     yOffset = 0;    //Reset the position
   rect.y = yOffset; //And store the new value in the render rectangle
+}
+
+void Background::speedUp(int speedIncrease) {
+  scrollSpeed += speedIncrease;
 }
 
 // Draw the background to the render
@@ -262,6 +270,10 @@ void AnimatedSprite::draw() {
   SDL_RenderCopy(renderer, textureSheet, &rectSource, &rectPlacement);
 }
 
+void AnimatedSprite::setLocation(const Point2d& location){
+  position = location;  // Set position to the given location
+}
+
 /*** Alien Functions ***/
 Alien::Alien(std::string filePath, int frames, int frameDelay, const RGB& transparencyColor)
   : AnimatedSprite(filePath, frames, frameDelay)
@@ -289,11 +301,6 @@ Alien::Alien(std::string filePath, int frames, int frameDelay, const RGB& transp
 Alien::Alien(std::string filePath, int frames, int frameDelay, std::string transparencyHex)
   : Alien(filePath, frames, frameDelay, hexToRGB(transparencyHex))
 {}
-
-
-void AnimatedSprite::setLocation(const Point2d& location){
-  position = location;  // Set position to the given location
-}
 
 bool ProgramIsRunning() {
     SDL_Event event;

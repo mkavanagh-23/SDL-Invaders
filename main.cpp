@@ -120,6 +120,7 @@ class AnimatedSprite {
     void nextFrame(); // Advance sprite to next frame on sheet
     void draw();  // Draw sprite to render
     void setLocation(const Point2d& location);
+    void update();
 };
 
 // Alien object
@@ -153,6 +154,26 @@ class Alien : public AnimatedSprite {
 
 };
 
+class AlienRow {
+  const int SIZE = 10;
+  Alien aliens[10];
+
+  bool isEmpty = false;
+  int yCollision;
+
+  public:
+    AlienRow();
+    ~AlienRow() = default;
+
+    friend std::ostream& operator<<(std::ostream& out, const AlienRow& row);
+
+  public:
+    void resetLocation();
+    void update();
+    void draw();
+
+};
+
 bool ProgramIsRunning();
 void FillRect(SDL_Rect &rect, int x, int y, int width, int height);
 SDL_Surface* loadImage(std::string path);
@@ -174,19 +195,29 @@ int main() {
   //Create game objects
   Background background("test/bg1080.bmp");
   AnimatedSprite sprite("test/sprite.bmp", 16, 3, "#00FF00");
-  Alien alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00");
+  //Alien alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00");
+  // Implemenmt as a raw array because a std::vector is causing too many headaches.
+  // Probably want to wrap this shizz in a class so you don't screw yourself over
+  //Alien aliens[2] = {
+  //  Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+  //  Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00")    
+  //};
+  AlienRow topRow;
 
-  std::cout << background << "\n\n" << sprite << "\n\n" << alien <<'\n';
+  //aliens[0].setLocation({10, 10});
+  //aliens[1].setLocation({130, 10});
+
+  std::cout << background << "\n\n" << sprite << "\n\n" << topRow << '\n';
 
   while(ProgramIsRunning())
   {
     sprite.nextFrame();
-    alien.nextFrame();
+    topRow.update();
     background.scroll();
     SDL_RenderClear(renderer);
     background.draw();
     sprite.draw();
-    alien.draw();
+    topRow.draw();
     SDL_RenderPresent(renderer);
     SDL_Delay(20);
   }
@@ -300,6 +331,16 @@ std::ostream& operator<<(std::ostream& out, const Alien& alien) {
   return out;
 }
 
+// Print a row of aliens
+std::ostream& operator<<(std::ostream& out, const AlienRow& row) {
+  out << "Alien Row [" << row.SIZE << "]\n";
+  for(int i = 0; i <row.SIZE; ++i){
+    out << '*' << row.aliens[i] << '\n';
+  }
+
+  return out;
+}
+
 /*** Background Functions ***/
 // Constructor
 Background::Background(std::string filePath)
@@ -391,6 +432,11 @@ void AnimatedSprite::setLocation(const Point2d& location){
   position = location;  // Set position to the given location
 }
 
+void AnimatedSprite::update() {
+  rectPlacement.x = position.x;
+  rectPlacement.y = position.y;
+}
+
 /*** Alien Functions ***/
 Alien::Alien(std::string filePath, int frames, int frameDelay, const RGB& transparencyColor)
   : AnimatedSprite(filePath, frames, frameDelay)
@@ -415,6 +461,46 @@ Alien::Alien(std::string filePath, int frames, int frameDelay, const RGB& transp
 Alien::Alien(std::string filePath, int frames, int frameDelay, std::string transparencyHex)
   : Alien(filePath, frames, frameDelay, hexToRGB(transparencyHex))
 {}
+
+AlienRow::AlienRow()
+  : aliens{
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00")}
+{
+  //Set to intitial location
+  resetLocation();
+}
+
+void AlienRow::resetLocation() {
+  //Iterate over the row
+  int xPos = 0;
+  int yPos = 10;
+  for(int i = 0; i < SIZE; ++i) {
+    aliens[i].setLocation({xPos, yPos});
+    xPos += aliens[i].getWidth() + 20;
+  }
+}
+
+void AlienRow::update(){
+  for(int i = 0; i < SIZE; ++i) {
+    aliens[i].nextFrame();
+    aliens[i].update();
+  }
+}
+
+void AlienRow::draw(){
+  for(int i = 0; i < SIZE; ++i) {
+    aliens[i].draw();
+  }
+}
 
 bool ProgramIsRunning() {
     SDL_Event event;

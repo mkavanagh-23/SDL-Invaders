@@ -1,4 +1,7 @@
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_scancode.h>
+#include <SDL2/SDL_stdinc.h>
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
@@ -102,7 +105,7 @@ class AnimatedSprite {
     const int MAX_SPRITE_FRAME = 1; // Number of animation frames
     const int FRAME_DELAY = 5;  // How many frames to delay rendering
     Direction movementDir;
-    const int SPEED = 1;
+    int SPEED = 1;
 
     //Attribute variables
     int width = 0;    // Width of a single sprite
@@ -128,8 +131,10 @@ class AnimatedSprite {
     void nextFrame(); // Advance sprite to next frame on sheet
     void draw();  // Draw sprite to render
     void setLocation(const Point2d& location);
+    Point2d getLocation() { return position; }
     void setDirection(const Direction& direction);
-    void move();
+    void setSpeed(const int speed);
+    bool move();
     void update();
 };
 
@@ -208,6 +213,7 @@ int main() {
   //Create game objects
   Background background("test/bg1080.bmp");
   AnimatedSprite sprite("test/sprite.bmp", 16, 3, "#00FF00");
+  sprite.setSpeed(5);
   //Alien alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00");
   // Implemenmt as a raw array because a std::vector is causing too many headaches.
   // Probably want to wrap this shizz in a class so you don't screw yourself over
@@ -227,7 +233,26 @@ int main() {
 
   while(ProgramIsRunning())
   {
+    // Get key press from keyboard and interpret
+    const Uint8 *keys = SDL_GetKeyboardState(NULL);
+
+    // End game with 'ESC'
+    if(keys[SDL_SCANCODE_ESCAPE])
+      break;
+
+    // Check for left and right arrow keypresses
+    if(keys[SDL_SCANCODE_LEFT]) {
+      sprite.setDirection(Direction::left);
+      sprite.move();
+    }
+
+    if(keys[SDL_SCANCODE_RIGHT]) {
+      sprite.setDirection(Direction::right);
+      sprite.move();
+    }
+
     sprite.nextFrame();
+    sprite.update();
     topRow.update();
     upperRow.update();
     lowerRow.update();
@@ -458,8 +483,21 @@ void AnimatedSprite::setDirection(const Direction& direction) {
   movementDir = direction;
 }
 
-void AnimatedSprite::move() {
+void AnimatedSprite::setSpeed(const int speed) {
+  SPEED = speed;
+}
+
+bool AnimatedSprite::move() {
   position.x += SPEED * static_cast<int>(movementDir);
+  if(position.x <= 0) { //If we hit the left edge
+    position.x = 0;     // Bounce off the edge
+    return false;       // False means we hit a wall
+  }
+  if(position.x >= (SCREEN_WIDTH - width)) {
+    position.x = SCREEN_WIDTH - width;
+    return false;
+  }
+  return true;
 }
 
 void AnimatedSprite::update() {
@@ -532,9 +570,20 @@ void AlienRow::update(){
   for(int i = 0; i < SIZE; ++i) {
     aliens[i].setDirection(xDir);
     aliens[i].nextFrame();
-    aliens[i].move();
+    if(!(aliens[i].move())) { // If we collide with a wall flip direction
+      if(xDir == Direction::right)
+        xDir = Direction::left;
+      else
+        xDir = Direction::right;
+    }
     aliens[i].update();
   }
+  //if((aliens[0].getLocation().x <= 0) || (aliens[SIZE -1].getLocation().x >= (SCREEN_WIDTH - aliens[SIZE-1].getWidth()))) {
+    //if(xDir == Direction::right)
+      //xDir = Direction::left;
+    //else
+      //xDir = Direction::right;
+  //}
 }
 
 void AlienRow::draw(){

@@ -4,7 +4,6 @@
 #include <cassert>
 #include <iostream>
 #include <string>
-#include <vector>
 
 // TODO:
 // Bind enemy speed to background scroll speed and increment with each round
@@ -102,6 +101,8 @@ class AnimatedSprite {
     int frameCounter = 0; // Hold the count to delay frame rendering
     const int MAX_SPRITE_FRAME = 1; // Number of animation frames
     const int FRAME_DELAY = 5;  // How many frames to delay rendering
+    Direction movementDir;
+    const int SPEED = 1;
 
     //Attribute variables
     int width = 0;    // Width of a single sprite
@@ -127,6 +128,8 @@ class AnimatedSprite {
     void nextFrame(); // Advance sprite to next frame on sheet
     void draw();  // Draw sprite to render
     void setLocation(const Point2d& location);
+    void setDirection(const Direction& direction);
+    void move();
     void update();
 };
 
@@ -164,10 +167,12 @@ class Alien : public AnimatedSprite {
 class AlienRow {
   const int SIZE = 10;
   const Rank RANK;
+  const int GAP_SIZE = 20;
   Alien aliens[10];
 
   bool isEmpty = false;
   int yCollision;
+  Direction xDir;
 
   public:
     AlienRow(Rank position);
@@ -449,6 +454,14 @@ void AnimatedSprite::setLocation(const Point2d& location){
   position = location;  // Set position to the given location
 }
 
+void AnimatedSprite::setDirection(const Direction& direction) {
+  movementDir = direction;
+}
+
+void AnimatedSprite::move() {
+  position.x += SPEED * static_cast<int>(movementDir);
+}
+
 void AnimatedSprite::update() {
   rectPlacement.x = position.x;
   rectPlacement.y = position.y;
@@ -481,16 +494,16 @@ Alien::Alien(std::string filePath, int frames, int frameDelay, std::string trans
 
 AlienRow::AlienRow(Rank position)
   : aliens{
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00")
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00")
     },
     RANK{position}
 {
@@ -500,17 +513,26 @@ AlienRow::AlienRow(Rank position)
 
 void AlienRow::resetLocation() {
   //Iterate over the row
-  int xPos = 0;
-  int yPos = (aliens[0].getHeight() + 20) * static_cast<int>(RANK);
+  int xPos = GUTTER_SIZE;
+  int yPos = ((aliens[0].getHeight() + GAP_SIZE) * static_cast<int>(RANK)) + GAP_SIZE;
   for(int i = 0; i < SIZE; ++i) {
     aliens[i].setLocation({xPos, yPos});
-    xPos += aliens[i].getWidth() + 20;
+    xPos += aliens[i].getWidth() + GAP_SIZE;
+  }
+  //Set the direction
+  if(static_cast<int>(RANK) % 2 == 0) {  // If we have an even rank move right
+    xDir = Direction::right;
+  }
+  else {
+    xDir = Direction::left;
   }
 }
 
 void AlienRow::update(){
   for(int i = 0; i < SIZE; ++i) {
+    aliens[i].setDirection(xDir);
     aliens[i].nextFrame();
+    aliens[i].move();
     aliens[i].update();
   }
 }

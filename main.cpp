@@ -28,6 +28,7 @@ std::string alienTransparency = "#00FF00";
 const int SCREEN_WIDTH = 1600;
 const int SCREEN_HEIGHT = 1200;
 const int GUTTER_SIZE = 210;        // Width of side gutters
+const int GAP_SIZE = 20;
 
 // Global Game Variables
 bool static_init = false;  // Track static class variable initialization state to be used as an invariant
@@ -166,6 +167,7 @@ class Alien : public AnimatedSprite {
     friend std::ostream& operator<<(std::ostream& out, const Alien& alien);
 
   public:
+    void moveDown();
 
 };
 
@@ -187,6 +189,7 @@ class AlienRow {
 
   public:
     void resetLocation();
+    void moveDown();
     void update();
     void draw();
 
@@ -530,6 +533,10 @@ Alien::Alien(std::string filePath, int frames, int frameDelay, std::string trans
   : Alien(filePath, frames, frameDelay, hexToRGB(transparencyHex))
 {}
 
+void Alien::moveDown(){
+  position.y += (height + GAP_SIZE);
+}
+
 AlienRow::AlienRow(Rank position)
   : aliens{
       Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
@@ -566,24 +573,26 @@ void AlienRow::resetLocation() {
   }
 }
 
+void AlienRow::moveDown() {
+  for(int i = 0; i < SIZE; ++i) {
+    aliens[i].moveDown();
+  }
+}
+
 void AlienRow::update(){
   for(int i = 0; i < SIZE; ++i) {
     aliens[i].setDirection(xDir);
     aliens[i].nextFrame();
-    if(!(aliens[i].move())) { // If we collide with a wall flip direction
+    if(!(aliens[i].move())) { // If we collide with a wall flip direction and move down
       if(xDir == Direction::right)
         xDir = Direction::left;
       else
         xDir = Direction::right;
+      // Move the entire row down
+      moveDown();
     }
     aliens[i].update();
   }
-  //if((aliens[0].getLocation().x <= 0) || (aliens[SIZE -1].getLocation().x >= (SCREEN_WIDTH - aliens[SIZE-1].getWidth()))) {
-    //if(xDir == Direction::right)
-      //xDir = Direction::left;
-    //else
-      //xDir = Direction::right;
-  //}
 }
 
 void AlienRow::draw(){

@@ -56,6 +56,13 @@ enum class Direction : int {
   left = -1         // X-Direction = -1
 };
 
+enum class Rank : int {
+  first = 0,
+  second = 1,
+  third = 2,
+  fourth = 3
+};
+
 // Background object
 class Background {
   private:
@@ -156,13 +163,14 @@ class Alien : public AnimatedSprite {
 
 class AlienRow {
   const int SIZE = 10;
+  const Rank RANK;
   Alien aliens[10];
 
   bool isEmpty = false;
   int yCollision;
 
   public:
-    AlienRow();
+    AlienRow(Rank position);
     ~AlienRow() = default;
 
     friend std::ostream& operator<<(std::ostream& out, const AlienRow& row);
@@ -202,7 +210,10 @@ int main() {
   //  Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
   //  Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00")    
   //};
-  AlienRow topRow;
+  AlienRow topRow(Rank::first);
+  AlienRow upperRow(Rank::second);
+  AlienRow lowerRow(Rank::third);
+  AlienRow bottomRow(Rank::fourth);
 
   //aliens[0].setLocation({10, 10});
   //aliens[1].setLocation({130, 10});
@@ -213,11 +224,17 @@ int main() {
   {
     sprite.nextFrame();
     topRow.update();
+    upperRow.update();
+    lowerRow.update();
+    bottomRow.update();
     background.scroll();
     SDL_RenderClear(renderer);
     background.draw();
     sprite.draw();
     topRow.draw();
+    upperRow.draw();
+    lowerRow.draw();
+    bottomRow.draw();
     SDL_RenderPresent(renderer);
     SDL_Delay(20);
   }
@@ -462,7 +479,7 @@ Alien::Alien(std::string filePath, int frames, int frameDelay, std::string trans
   : Alien(filePath, frames, frameDelay, hexToRGB(transparencyHex))
 {}
 
-AlienRow::AlienRow()
+AlienRow::AlienRow(Rank position)
   : aliens{
       Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
       Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
@@ -473,7 +490,9 @@ AlienRow::AlienRow()
       Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
       Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
       Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00")}
+      Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00")
+    },
+    RANK{position}
 {
   //Set to intitial location
   resetLocation();
@@ -482,7 +501,7 @@ AlienRow::AlienRow()
 void AlienRow::resetLocation() {
   //Iterate over the row
   int xPos = 0;
-  int yPos = 10;
+  int yPos = (aliens[0].getHeight() + 20) * static_cast<int>(RANK);
   for(int i = 0; i < SIZE; ++i) {
     aliens[i].setLocation({xPos, yPos});
     xPos += aliens[i].getWidth() + 20;

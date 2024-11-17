@@ -4,6 +4,7 @@
 #include <cassert>
 #include <iostream>
 #include <string>
+#include <vector>
 
 // TODO:
 // Bind enemy speed to background scroll speed and increment with each round
@@ -34,16 +35,18 @@ int playerLives = 3;
 // Interfaces
 // Struct to hold RGBA values
 struct RGB {
-  Uint8 r = 255;  // Amount of red
-  Uint8 g = 255;  // Amount of green
-  Uint8 b = 255;  // Amount of blue
-  Uint8 a = 255;    // Alpha transparency (default opaque)
+  Uint8 r,g,b,a = 255;  // Amount of each color and alpha
+
+  // Overide Operator<< to print the object
+  friend std::ostream& operator<<(std::ostream& out, const RGB& color);
 };  // End RGB
 
 // Struct to hold (x, y) coordinates
 struct Point2d {
-  int x = 0;    // x-coordinate
-  int y = 0;    // y-coordinate
+  int x,y = 0;    // x,y-coordinate
+
+  // Override Opertaor<<
+  friend std::ostream& operator<<(std::ostream& out, const Point2d& point);
 };
 
 // Define directions for movement
@@ -65,6 +68,9 @@ class Background {
   public:
     Background(std::string filePath); // Constructor
     ~Background();  // Destructor
+
+    // Override Operator<<
+    friend std::ostream& operator<<(std::ostream& out, const Background& background);
 
   public:
     void scroll();  // Scroll the background by one tick
@@ -103,6 +109,8 @@ class AnimatedSprite {
     AnimatedSprite(std::string filePath, int frames, int frameDelay, std::string transparencyHex);
     ~AnimatedSprite();
   
+    friend std::ostream& operator<<(std::ostream& out, const AnimatedSprite& sprite);
+
   protected:
     AnimatedSprite(std::string filePath, int frames, int frameDelay);    // Helper constructor for child classes, ensure static member initialization
   
@@ -139,6 +147,8 @@ class Alien : public AnimatedSprite {
     Alien(std::string filePath, int frames, int frameDelay, std::string transparencyHex);
     ~Alien() = default;
 
+    friend std::ostream& operator<<(std::ostream& out, const Alien& alien);
+
   public:
 
 };
@@ -151,6 +161,7 @@ SDL_Surface* setTransparentColor (SDL_Surface* surface, Uint8 r, Uint8 g, Uint8 
 void CloseShop();
 bool Init();
 const RGB hexToRGB(std::string_view hex);
+std::ostream& operator<<(std::ostream& out, const Direction& direction);
 
 /************************* MAIN GAME FUNCTION ***************************/
 int main() {
@@ -160,11 +171,12 @@ int main() {
     return 1;
   }
 
-
   //Create game objects
   Background background("test/bg1080.bmp");
   AnimatedSprite sprite("test/sprite.bmp", 16, 3, "#00FF00");
   Alien alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00");
+
+  std::cout << background << "\n\n" << sprite << "\n\n" << alien <<'\n';
 
   while(ProgramIsRunning())
   {
@@ -183,6 +195,111 @@ int main() {
 }
 
 /*********************** CLASS MEMBER FUNCTIONS *************************/
+/*** Override Operator<< to Print Objects to Console ***/
+// Print RGB Colors
+std::ostream& operator<<(std::ostream& out, const RGB& color) {
+  out << "RGBA(" << static_cast<int>(color.r) << ", " << static_cast<int>(color.g) << ", " << static_cast<int>(color.b) << ", " << static_cast<int>(color.a) << ')';
+  
+  return out;
+}
+
+// Print X,Y Coordinate
+std::ostream& operator<<(std::ostream& out, const Point2d& point) {
+  out << "Point2d(" << point.x << ", " << point.y << ')';
+  
+  return out;
+}
+
+// Print direction values to the screen
+std::ostream& operator<<(std::ostream& out, const Direction& direction) {
+  switch(direction) {
+    case Direction::left:
+      out << "Left ";
+      break;
+    case Direction::right:
+      out << "Right ";
+      break;
+    default:
+      out << "UNDEF ";
+      break;
+  }
+  out << '(' << static_cast<int>(direction) << ')';
+  
+  return out;
+}
+
+// Print out info on the background to the screen
+std::ostream& operator<<(std::ostream& out, const Background& background) {
+  out << "Background:\n"
+    << "Path: \'" << background.PATH << "\'\n"
+    << "Texture Ptr: " << background.texture << '\n'
+    << "Rectangle (x,y,w,h): " << static_cast<int>(background.rect.x) << ", " << static_cast<int>(background.rect.y) << ", " << static_cast<int>(background.rect.w) << ", " << static_cast<int>(background.rect.h) << '\n'
+    << "Scrolling: (y + " << background.yOffset << ") @ " << background.scrollSpeed << " per frame";
+
+  return out;
+}
+
+// Print sprite info to the screen
+std::ostream& operator<<(std::ostream& out, const AnimatedSprite& sprite) {
+  out << "Sprite:\n"
+    << "Path: \'" << sprite.PATH << "\'\n"
+    << "Texture Ptr: " << sprite.textureSheet << '\n'
+    << "Transparency: " << sprite.transparency << '\n'
+    << "Dimensions (w,h): " << sprite.width << ", " << sprite.height << '\n'
+    << "Position: " << sprite.position << '\n'
+    << "Rectangle (x,y,w,h):\n"
+    << "  Source: " << static_cast<int>(sprite.rectSource.x) << ", " << static_cast<int>(sprite.rectSource.y) << ", " << static_cast<int>(sprite.rectSource.w) << ", " << static_cast<int>(sprite.rectSource.h) << '\n'
+    << "  Placement: " << static_cast<int>(sprite.rectPlacement.x) << ", " << static_cast<int>(sprite.rectPlacement.y) << ", " << static_cast<int>(sprite.rectPlacement.w) << ", " << static_cast<int>(sprite.rectPlacement.h) << '\n'
+    << "Animation:\n"
+    << "  Current Frame: " << sprite.spriteFrame + 1 << " / " << sprite.MAX_SPRITE_FRAME << '\n'
+    << "  Delay: " << sprite.frameCounter << " / " << sprite.FRAME_DELAY << '\n'
+    << "Explosion Animation State: " << sprite.isExploded << '\n'
+    << "Destroyed State: " << sprite.isDestroyed;
+
+  return out;
+}
+
+// Print info for an Alien object
+std::ostream& operator<<(std::ostream& out, const Alien& alien) {
+  out << "Alien " << static_cast<const AnimatedSprite&>(alien) << '\n'
+    << "UFO Color: ";
+
+  switch(alien.color) {
+    case Alien::Color::green:
+      out << "green";
+      break;
+    case Alien::Color::blue:
+      out << "blue";
+      break;
+    case Alien::Color::gray:
+      out << "gray";
+      break;
+    case Alien::Color::pink:
+      out << "pink";
+      break;
+    case Alien::Color::mauve:
+      out << "mauve";
+      break;
+    case Alien::Color::yellow:
+      out << "yellow";
+      break;
+    case Alien::Color::brown:
+      out << "brown";
+      break;
+    case Alien::Color::red:
+      out << "red";
+      break;
+    case Alien::Color::orange:
+      out << "orange";
+      break;
+    default:
+      out << "UNDEF";
+      break;
+  }
+  out << '(' << static_cast<int>(alien.color) <<')';
+  return out;
+}
+
 /*** Background Functions ***/
 // Constructor
 Background::Background(std::string filePath)
@@ -293,9 +410,6 @@ Alien::Alien(std::string filePath, int frames, int frameDelay, const RGB& transp
   // And fill the source and dest rectangles
   FillRect(rectSource, sourceX, sourceY, width, height);
   FillRect(rectPlacement, position.x, position.y, width, height);
-
-  // DEBUG STATEMENT
-  std::cout << "Generated alien with color #" << int(color) << '\n';
 }
 
 Alien::Alien(std::string filePath, int frames, int frameDelay, std::string transparencyHex)

@@ -1,10 +1,8 @@
 #include <SDL2/SDL.h>
-#include <SDL2/SDL_keyboard.h>
-#include <SDL2/SDL_scancode.h>
-#include <SDL2/SDL_stdinc.h>
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
+#include <fstream>
 #include <iostream>
 #include <string>
 
@@ -26,7 +24,7 @@ std::string alienTransparency = "#00FF00";
 
 // Global Game Constants
 const int SCREEN_WIDTH = 1600;
-const int SCREEN_HEIGHT = 1200;
+const int SCREEN_HEIGHT = 900;
 const int GUTTER_SIZE = 210;        // Width of side gutters
 const int GAP_SIZE = 20;
 
@@ -86,6 +84,28 @@ class Background {
     void scroll();  // Scroll the background by one tick
     void speedUp(int speedIncrease);    // Increase the background scroll speed
     void draw();  // Draw the background to the render
+};
+
+class Tilemap {
+  private:
+    SDL_Texture* texture;
+    SDL_Rect rectSource;
+    SDL_Rect rectPlacement;
+    const std::string PATH = NULL;
+    int* tiles = NULL;
+    int sheetWidth = 0;
+    int sheetHeight = 0;
+    int mapCol = 0;
+    int mapRow = 0;
+    int tileWidth = 0;
+    int tileHeight = 0;
+
+  public:
+    Tilemap(std::string filePath);
+    ~Tilemap();
+
+  public:
+    void draw();
 };
 
 // Animated sprite object
@@ -215,24 +235,15 @@ int main() {
 
   //Create game objects
   Background background("test/bg1080.bmp");
+  Tilemap tilemap("test/tilemap.bmp");
+
   AnimatedSprite sprite("test/sprite.bmp", 16, 3, "#00FF00");
   sprite.setSpeed(5);
-  //Alien alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00");
-  // Implemenmt as a raw array because a std::vector is causing too many headaches.
-  // Probably want to wrap this shizz in a class so you don't screw yourself over
-  //Alien aliens[2] = {
-  //  Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00"),
-  //  Alien("test/ufos.bmp", 2, std::rand() % 100, "#00FF00")    
-  //};
+
   AlienRow topRow(Rank::first);
   AlienRow upperRow(Rank::second);
   AlienRow lowerRow(Rank::third);
   AlienRow bottomRow(Rank::fourth);
-
-  //aliens[0].setLocation({10, 10});
-  //aliens[1].setLocation({130, 10});
-
-  std::cout << background << "\n\n" << sprite << "\n\n" << topRow << '\n';
 
   while(ProgramIsRunning())
   {
@@ -263,6 +274,7 @@ int main() {
     background.scroll();
     SDL_RenderClear(renderer);
     background.draw();
+    tilemap.draw();
     sprite.draw();
     topRow.draw();
     upperRow.draw();
@@ -423,6 +435,119 @@ void Background::draw() {
   SDL_RenderCopy(renderer, texture, NULL, &rect); // Copy the image to the render
   rect.y = yOffset - SCREEN_HEIGHT; // Scroll the image down
   SDL_RenderCopy(renderer, texture, NULL, &rect); //Copy the image to the render
+}
+
+Tilemap::Tilemap(std::string filePath)
+  : PATH{filePath}
+{
+  // Set up the texture
+  // Load the image onto a transoarent surface
+  tempSurface = loadImage("test/tiles.bmp");
+  tempSurface = setTransparentColor(tempSurface, 0, 255, 0);
+  // Load the surface onto a texture
+  texture = loadTexture(tempSurface);
+
+  // Get the tile data  
+  // Load the map file
+  std::ifstream in("test/map.map");
+
+  if(!in.good())
+    std::cout << "The map did not load.\n";
+
+  std::string buffer;
+
+  // Get the line that says 'destWidth'
+  std::getline(in, buffer, ' ');
+  // Get the width value
+  std::getline(in, buffer, '\n');
+  sheetWidth = std::atoi(buffer.c_str());
+
+  // Get the line that says 'destHeight'
+  std::getline(in, buffer, ' ');
+  // Get the height value
+  std::getline(in, buffer, '\n');
+  sheetHeight = std::atoi(buffer.c_str());
+
+  // Get the line that says 'mapWidth'
+  std::getline(in, buffer, ' ');
+  // Get the mapWidth value
+  std::getline(in, buffer, '\n');
+  mapCol = std::atoi(buffer.c_str());
+
+  // Get the line that says 'mapHeight'
+  std::getline(in, buffer, ' ');
+  // Get the mapHeight value
+  std::getline(in, buffer, '\n');
+  mapRow = std::atoi(buffer.c_str());
+
+  // Get the line that says 'tile_width'
+  std::getline(in, buffer, ' ');
+  // Get the tile_width value
+  std::getline(in, buffer, '\n');
+  tileWidth = std::atoi(buffer.c_str());
+
+  // Get the line that says 'tile_height'
+  std::getline(in, buffer, ' ');
+  // Get the tile_height value
+  std::getline(in, buffer, '\n');
+  tileHeight = std::atoi(buffer.c_str());
+  
+  // Set up the array to hold the tiles
+  tiles = new int[mapCol * mapRow];
+
+  // Get the line that says 'layer1'
+  std::getline(in, buffer, '\n');
+
+  int i = 0;    // array index
+  for(int row = 0; row < mapRow; row++) {
+    for(int col = 0; col < mapCol; col++) {
+      char delim = ','; // comma delimits between frames
+      if(col == mapCol - 1) // Unless last frame in row, then set to new line
+        delim = '\n';
+      std::getline(in, buffer, delim);  // Get the Frame ID
+      int data = std::atoi(buffer.c_str());     // Convert it to an integer
+      tiles[i] = data;      // And store the Frame ID at the tile's index
+      i++;
+    }   // End column loop
+  } // End row loop
+
+  in.close();
+}
+
+Tilemap::~Tilemap(){
+  SDL_DestroyTexture(texture);
+  if(tiles != NULL) {
+    delete[] tiles;
+    tiles = NULL;
+  }
+}
+
+void Tilemap::draw(){
+  // Draw a layer
+  for(int row = 0; row < mapRow; row++) {
+    for(int col = 0; col < mapCol; col++) {
+      int frame = tiles[row*mapCol+col];    // Get the frame id of the current tile
+      if(frame > 0) {   // Grab the tile if we have a Frame ID
+        // Calculate x and y location of tile on sheet
+        int rawBytes = ((frame -1) * tileWidth);
+        int xSource = rawBytes % sheetWidth;
+        int ySource = (rawBytes / sheetWidth) * tileHeight;
+
+        // Initialize source rectangle on the texture sheet
+        FillRect(rectSource, xSource, ySource, tileWidth, tileHeight);
+
+        // Calculate x and y position to render on screen
+        int xDest = col * tileWidth;
+        int yDest = row * tileHeight;
+
+        // Initialize the destination rectangle for rendering
+        FillRect(rectPlacement, xDest, yDest, tileWidth, tileHeight);
+
+        // Copy the tile to the renderer
+        SDL_RenderCopy(renderer, texture, &rectSource, &rectPlacement);
+      }     // End frame rendering
+    }   // End column rendering
+  } // End row rendering  
 }
 
 /*** AnimatedSprite Functions ***/

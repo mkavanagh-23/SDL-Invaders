@@ -7,6 +7,20 @@
 #include <string>
 
 // TODO:
+// Set up scoring
+  // For each UFO destroyed, playerScore++
+  // 40 total ufos... can use either score / 40 to determine round (likely faster)
+  // or we can check each row for empty state (likely slower but more logical)
+// Set up rounds
+  // 3 Rounds
+  // Rounds progress when all sprites are destroyed
+  // At the start of each round, instantiate a new set of enemy sprites
+  // First round - easy (slow), second faster, third randomized value
+// Set up lives
+  // 3 Lives
+  // Lose life when a non-empty row touches a solid tile
+  // or do we want to just want to check collision with the player sprite and 'y + height' with the y-axis?
+  // Upon lost life, round continues but enemy posititions are reset (destroyed stay destroyed)
 // Bind enemy speed to background scroll speed and increment with each round
 // The increased scroll speed gives a more stressful feel
 
@@ -741,6 +755,7 @@ bool ProgramIsRunning() {
 }
 
 void FillRect(SDL_Rect &rect, int x, int y, int width, int height) {
+#include <SDL2/SDL_stdinc.h>
     //Initialize the rectangle
     rect.x = x;         //initial x position of upper left corner
     rect.y = y;         //initial y position of upper left corner

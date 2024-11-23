@@ -247,10 +247,10 @@ int main() {
   }
 
   //Create game objects
-  Background background("test/bg1080.bmp");
+  Background background("test/RQ03IX.bmp");
   Tilemap tilemap("test/tilemap.bmp");
 
-  AnimatedSprite sprite("test/sprite.bmp", 16, 3, "#000000");
+  AnimatedSprite sprite("test/sprite.bmp", 16, 2, "#000000");
   sprite.setSpeed(5);
 
   AlienRow topRow(Rank::first);

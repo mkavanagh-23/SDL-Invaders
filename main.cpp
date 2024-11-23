@@ -51,6 +51,12 @@ int main() {
   AnimatedSprite sprite("graphics/sprite.bmp", 16, 2, "#000000");
   sprite.setSpeed(5);
 
+  // Create a start menu
+  // Build a fun logo (maybe have AI do it) and render it on screen
+  // Press "SPACE" to start the game
+  // Render the space background and sprite under it without the aliens or tiles
+  // Do a while(true) and break on ESC or SPACE
+
 
   // Tie AlienRow to the scope of a round, generate a new set of aliens
   AlienRow topRow(Rank::first);

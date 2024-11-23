@@ -33,12 +33,13 @@
 // Global Game Variables
 int playerScore = 0;
 int playerLives = 3;
-  bool playGame = false;
+bool playGame = false;  // Menu state variable
 
 // Declare Global game objects
 Background* background;
 Tilemap* tilemap;
 AnimatedSprite* logo;
+AnimatedSprite* start;
 AnimatedSprite* player;
 AlienRow* topRow;
 AlienRow* upperRow;
@@ -54,6 +55,8 @@ void destroyObjects();
 // Gameplay functions
 void displayMenu();
 void startGame();
+void updateObjects();
+void drawObjects();
 
 /************************* MAIN GAME FUNCTION ***************************/
 int main() {
@@ -63,7 +66,6 @@ int main() {
     std::cout << "Critical error, terminating program\n";
     return 1;
   }
-  
 
   // BEGIN GAME LOOP
   while(SDL::ProgramIsRunning())
@@ -100,10 +102,12 @@ int main() {
       }
       player->nextFrame();
       player->update();
+      start->nextFrame();
       background->scroll();
       SDL_RenderClear(SDL::renderer);
       background->draw();
       logo->draw();
+      start->draw();
       player->draw();
       SDL_RenderPresent(SDL::renderer);
       SDL_Delay(20);
@@ -157,6 +161,7 @@ void createObjects() {
   background = new Background("graphics/bg.bmp");
   tilemap = new Tilemap("graphics/tilemap.bmp");
   logo = new AnimatedSprite("graphics/logo.bmp", 1, 0, "#000000");
+  start = new AnimatedSprite("graphics/start.bmp", 2, 50, "#000000");
   player = new AnimatedSprite("graphics/sprite.bmp", 16, 2, "#000000");
   topRow = new AlienRow(Rank::first);
   upperRow = new AlienRow(Rank::second);
@@ -165,6 +170,8 @@ void createObjects() {
   // Set object state
   logo->setLocation({ (settings::SCREEN_WIDTH - logo->getWidth()) / 2, -30 });
   logo->update();
+  start->setLocation({(settings::SCREEN_WIDTH - start->getWidth()) / 2, settings::SCREEN_HEIGHT - (2 * player->getHeight() + 30)});
+  start->update();
   player->setSpeed(5);
 }
 
@@ -172,6 +179,7 @@ void destroyObjects() {
   delete background;
   delete tilemap;
   delete logo;
+  delete start;
   delete player;
   delete topRow;
   delete upperRow;

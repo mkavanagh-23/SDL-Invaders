@@ -34,7 +34,7 @@ SDL_Surface* tempSurface = NULL;
 // Static alien texture
 SDL_Texture* alienTextureSheet = NULL;      // Texture sheet to share for all alien objects
 std::string alienSheetPath = "test/ufos.bmp";
-std::string alienTransparency = "#00FF00";
+std::string alienTransparency = "#000000";
 
 // Global Game Constants
 const int SCREEN_WIDTH = 1600;
@@ -179,15 +179,15 @@ class Alien : public AnimatedSprite {
   private:
     //Enum class to hold color values
     enum class Color : int {  // Integral type - value corresponds with y-offset on the sheet
-      green,      // 0
-      blue,       // 1
+      blue,      // 0
+      brown,       // 1
       gray,       // 2
-      pink,       // 3
-      mauve,      // 4
-      yellow,     // 5
-      brown,      // 6
+      green,       // 3
+      orange,      // 4
+      pink,     // 5
+      purple,      // 6
       red,        // 7
-      orange,     // 8
+      yellow,     // 8
       MAX_COLORS  // Size - allows us to work with the sheet easier
     };
 
@@ -208,7 +208,6 @@ class Alien : public AnimatedSprite {
 class AlienRow {
   const int SIZE = 10;
   const Rank RANK;
-  const int GAP_SIZE = 20;
   Alien aliens[10];
 
   bool isEmpty = false;
@@ -251,7 +250,7 @@ int main() {
   Background background("test/bg1080.bmp");
   Tilemap tilemap("test/tilemap.bmp");
 
-  AnimatedSprite sprite("test/sprite.bmp", 16, 3, "#00FF00");
+  AnimatedSprite sprite("test/sprite.bmp", 16, 3, "#000000");
   sprite.setSpeed(5);
 
   AlienRow topRow(Rank::first);
@@ -384,8 +383,8 @@ std::ostream& operator<<(std::ostream& out, const Alien& alien) {
     case Alien::Color::pink:
       out << "pink";
       break;
-    case Alien::Color::mauve:
-      out << "mauve";
+    case Alien::Color::purple:
+      out << "purple";
       break;
     case Alien::Color::yellow:
       out << "yellow";
@@ -678,16 +677,16 @@ void Alien::moveDown(){
 
 AlienRow::AlienRow(Rank position)
   : aliens{
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00"),
-      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, "#00FF00")
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency),
+      Alien("test/ufos.bmp", 2, std::rand() % 50 + 30, alienTransparency)
     },
     RANK{position}
 {
@@ -755,7 +754,6 @@ bool ProgramIsRunning() {
 }
 
 void FillRect(SDL_Rect &rect, int x, int y, int width, int height) {
-#include <SDL2/SDL_stdinc.h>
     //Initialize the rectangle
     rect.x = x;         //initial x position of upper left corner
     rect.y = y;         //initial y position of upper left corner

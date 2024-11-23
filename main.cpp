@@ -1,3 +1,7 @@
+#include <SDL2/SDL_keyboard.h>
+#include <SDL2/SDL_render.h>
+#include <SDL2/SDL_scancode.h>
+#include <SDL2/SDL_timer.h>
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
@@ -7,6 +11,7 @@
 #include "types.h"
 #include "sprite.h"
 #include "background.h"
+#include "settings.h"
 
 // TODO:
 // Set up scoring
@@ -47,23 +52,19 @@ int main() {
   //Create game objects
   Background background("graphics/bg.bmp");
   Tilemap tilemap("graphics/tilemap.bmp");
+  AnimatedSprite logo("graphics/logo.bmp", 1, 0, "#000000");
+  logo.setLocation({ (settings::SCREEN_WIDTH - logo.getWidth()) / 2, -30 });
+  logo.update();
 
-  AnimatedSprite sprite("graphics/sprite.bmp", 16, 2, "#000000");
-  sprite.setSpeed(5);
+  AnimatedSprite player("graphics/sprite.bmp", 16, 2, "#000000");
+  player.setSpeed(5);
 
-  // Create a start menu
-  // Build a fun logo (maybe have AI do it) and render it on screen
-  // Press "SPACE" to start the game
-  // Render the space background and sprite under it without the aliens or tiles
-  // Do a while(true) and break on ESC or SPACE
-
-
-  // Tie AlienRow to the scope of a round, generate a new set of aliens
   AlienRow topRow(Rank::first);
   AlienRow upperRow(Rank::second);
   AlienRow lowerRow(Rank::third);
   AlienRow bottomRow(Rank::fourth);
 
+  bool playGame = false;
   // BEGIN GAME LOOP
   while(SDL::ProgramIsRunning())
   {
@@ -76,32 +77,55 @@ int main() {
 
     // Check for left and right arrow keypresses
     if(keys[SDL_SCANCODE_LEFT]) {
-      sprite.setDirection(Direction::left);
-      sprite.move();
+      player.setDirection(Direction::left);
+      player.move();
     }
 
     if(keys[SDL_SCANCODE_RIGHT]) {
-      sprite.setDirection(Direction::right);
-      sprite.move();
+      player.setDirection(Direction::right);
+      player.move();
     }
 
-    sprite.nextFrame();
-    sprite.update();
-    topRow.update();
-    upperRow.update();
-    lowerRow.update();
-    bottomRow.update();
-    background.scroll();
-    SDL_RenderClear(SDL::renderer);
-    background.draw();
-    tilemap.draw();
-    sprite.draw();
-    topRow.draw();
-    upperRow.draw();
-    lowerRow.draw();
-    bottomRow.draw();
-    SDL_RenderPresent(SDL::renderer);
-    SDL_Delay(20);
+    if(!playGame) {
+      if(keys[SDL_SCANCODE_SPACE]) {
+        playGame = true;
+        background.scroll();
+        SDL_RenderClear(SDL::renderer);
+        background.draw();
+        logo.draw();
+        SDL_RenderPresent(SDL::renderer);
+        SDL_Delay(1000);
+        continue;
+      }
+      player.nextFrame();
+      player.update();
+      background.scroll();
+      SDL_RenderClear(SDL::renderer);
+      background.draw();
+      logo.draw();
+      player.draw();
+      SDL_RenderPresent(SDL::renderer);
+      SDL_Delay(20);
+    }
+    else {
+      player.nextFrame();
+      player.update();
+      topRow.update();
+      upperRow.update();
+      lowerRow.update();
+      bottomRow.update();
+      background.scroll();
+      SDL_RenderClear(SDL::renderer);
+      background.draw();
+      tilemap.draw();
+      player.draw();
+      topRow.draw();
+      upperRow.draw();
+      lowerRow.draw();
+      bottomRow.draw();
+      SDL_RenderPresent(SDL::renderer);
+      SDL_Delay(20);
+    }
   }
   SDL::CloseShop();
   return 0;

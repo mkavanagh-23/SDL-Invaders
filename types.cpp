@@ -35,7 +35,7 @@ std::ostream& operator<<(std::ostream& out, const Direction& direction) {
   return out;
 }
 
-const RGB hexToRGB(const std::string_view hex) {
+const RGB hexToRGB(const std::string hex) {
   std::string hexColor{ hex };  // Store the value in a temp string for processing
   if(hexColor[0] == '#') {    // If first character is '#', 
       hexColor = hexColor.substr(1, 6); // Extract the substring directly following it

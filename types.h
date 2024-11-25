@@ -3,7 +3,6 @@
 
 #include <cstdint>
 #include <iostream>
-#include <string_view>
 
 // Struct to hold RGBA values
 struct RGB {
@@ -35,7 +34,7 @@ enum class Rank : int {
   fourth = 3
 };
 
-const RGB hexToRGB(std::string_view hex);
+const RGB hexToRGB(std::string hex);
 std::ostream& operator<<(std::ostream& out, const Direction& direction);
 
 #endif

@@ -8,7 +8,6 @@ namespace SDL {
   extern SDL_Window* gameWindow;
   extern SDL_Renderer* renderer;
   extern SDL_Surface* tempSurface;
-  //MOVE TO ALIEN FILES
   extern bool static_init;  // Track static class variable initialization state to be used as an invariant
   
   bool ProgramIsRunning();

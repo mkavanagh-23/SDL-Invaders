@@ -36,15 +36,15 @@ int playerLives = 3;
 bool playGame = false;  // Menu state variable
 
 // Declare Global game objects
-Background* background = nullptr;
-Tilemap* tilemap = nullptr;
-AnimatedSprite* logo = nullptr;
-AnimatedSprite* start = nullptr;
-AnimatedSprite* player = nullptr;
-AlienRow* topRow = nullptr;
-AlienRow* upperRow = nullptr;
-AlienRow* lowerRow = nullptr;
-AlienRow* bottomRow = nullptr;
+Background* background = NULL;
+Tilemap* tilemap = NULL;
+AnimatedSprite* logo = NULL;
+AnimatedSprite* start = NULL;
+AnimatedSprite* player = NULL;
+AlienRow* topRow = NULL;
+AlienRow* upperRow = NULL;
+AlienRow* lowerRow = NULL;
+AlienRow* bottomRow = NULL;
 // Function Prototypes
 // Game state functions
 bool init();
@@ -189,13 +189,13 @@ void destroyObjects() {
   delete bottomRow;
 
   // Reset pointers to prevent undefined behavior
-  background = nullptr;
-  tilemap = nullptr;
-  logo = nullptr;
-  start = nullptr;
-  player = nullptr;
-  topRow = nullptr;
-  upperRow = nullptr;
-  lowerRow = nullptr;
-  bottomRow = nullptr; 
+  background = NULL;
+  tilemap = NULL;
+  logo = NULL;
+  start = NULL;
+  player = NULL;
+  topRow = NULL;
+  upperRow = NULL;
+  lowerRow = NULL;
+  bottomRow = NULL; 
 }

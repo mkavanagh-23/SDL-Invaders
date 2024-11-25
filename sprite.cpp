@@ -6,7 +6,7 @@
 #include <cassert>
 
 // Static alien texture
-SDL_Texture* alienTextureSheet = nullptr;      // Texture sheet to share for all alien objects
+SDL_Texture* alienTextureSheet = NULL;      // Texture sheet to share for all alien objects
 std::string alienSheetPath = "graphics/ufos.bmp";
 std::string alienTransparency = "#000000";
 

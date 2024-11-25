@@ -8,7 +8,7 @@
 // Background object
 class Background {
   private:
-    SDL_Texture* texture = nullptr; // Hold the background texture
+    SDL_Texture* texture = NULL; // Hold the background texture
     SDL_Rect rect;  // Render rectangle
     int yOffset = 0;  // Current y-offset for calculating scroll
     int scrollSpeed = 3;  // Speed at which BG scrolls in pixels
@@ -30,11 +30,11 @@ class Background {
 // Tilemap object
 class Tilemap {
   private:
-    SDL_Texture* texture = nullptr;
+    SDL_Texture* texture = NULL;
     SDL_Rect rectSource;
     SDL_Rect rectPlacement;
     const std::string PATH = "";
-    int* tiles = nullptr;
+    int* tiles = NULL;
     int sheetWidth = 0;
     int sheetHeight = 0;
     int mapCol = 0;

@@ -1,15 +1,16 @@
 #include "engine.h"
 #include "settings.h"
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_video.h>
 #include <string>
 #include <iostream>
 #include <ctime>
 
 namespace SDL {
   // Declare global SDL objects
-  SDL_Window* gameWindow = NULL;
-  SDL_Renderer* renderer = NULL;
-  SDL_Surface* tempSurface = NULL;
+  SDL_Window* gameWindow = nullptr;
+  SDL_Renderer* renderer = nullptr;
+  SDL_Surface* tempSurface = nullptr;
   //MOVE TO ALIEN FILES
   bool static_init = false;         // Track static class variable initialization state to be used as an invariant
 
@@ -87,6 +88,9 @@ namespace SDL {
     //Destroy all objects
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(gameWindow);
+    tempSurface = nullptr;
+    gameWindow = nullptr;
+    renderer = nullptr;
     SDL_Quit(); //Quit the program
   }//End Close Shop
 }

@@ -14,7 +14,7 @@ extern std::string alienTransparency;
 // Animated sprite object
 class AnimatedSprite {
   protected:
-    SDL_Texture* textureSheet = NULL; // Texture for entire sheet
+    SDL_Texture* textureSheet = nullptr; // Texture for entire sheet
 
   protected:
     //Render variables

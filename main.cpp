@@ -36,16 +36,15 @@ int playerLives = 3;
 bool playGame = false;  // Menu state variable
 
 // Declare Global game objects
-Background* background;
-Tilemap* tilemap;
-AnimatedSprite* logo;
-AnimatedSprite* start;
-AnimatedSprite* player;
-AlienRow* topRow;
-AlienRow* upperRow;
-AlienRow* lowerRow;
-AlienRow* bottomRow;
-
+Background* background = nullptr;
+Tilemap* tilemap = nullptr;
+AnimatedSprite* logo = nullptr;
+AnimatedSprite* start = nullptr;
+AnimatedSprite* player = nullptr;
+AlienRow* topRow = nullptr;
+AlienRow* upperRow = nullptr;
+AlienRow* lowerRow = nullptr;
+AlienRow* bottomRow = nullptr;
 // Function Prototypes
 // Game state functions
 bool init();
@@ -114,23 +113,25 @@ int main() {
     }   // END DISPLAY MENU
    // Play the game 
     else {
-      player->nextFrame();
-      player->update();
-      topRow->update();
-      upperRow->update();
-      lowerRow->update();
-      bottomRow->update();
-      background->scroll();
-      SDL_RenderClear(SDL::renderer);
-      background->draw();
-      tilemap->draw();
-      player->draw();
-      topRow->draw();
-      upperRow->draw();
-      lowerRow->draw();
-      bottomRow->draw();
-      SDL_RenderPresent(SDL::renderer);
-      SDL_Delay(20);
+      // if(round < settings::NUM_ROUNDS) {
+        player->nextFrame();
+        player->update();
+        topRow->update();
+        upperRow->update();
+        lowerRow->update();
+        bottomRow->update();
+        background->scroll();
+        SDL_RenderClear(SDL::renderer);
+        background->draw();
+        tilemap->draw();
+        player->draw();
+        topRow->draw();
+        upperRow->draw();
+        lowerRow->draw();
+        bottomRow->draw();
+        SDL_RenderPresent(SDL::renderer);
+        SDL_Delay(20);
+      // }
     }
   }
   end();
@@ -176,6 +177,7 @@ void createObjects() {
 }
 
 void destroyObjects() {
+  // Delete each object
   delete background;
   delete tilemap;
   delete logo;
@@ -184,5 +186,16 @@ void destroyObjects() {
   delete topRow;
   delete upperRow;
   delete lowerRow;
-  delete bottomRow; 
+  delete bottomRow;
+
+  // Reset pointers to prevent undefined behavior
+  background = nullptr;
+  tilemap = nullptr;
+  logo = nullptr;
+  start = nullptr;
+  player = nullptr;
+  topRow = nullptr;
+  upperRow = nullptr;
+  lowerRow = nullptr;
+  bottomRow = nullptr; 
 }

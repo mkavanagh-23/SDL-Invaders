@@ -72,12 +72,13 @@ namespace SDL {
   bool Init() {
     // Initialize SDL
     // Create the renderer and the window
-    gameWindow = SDL_CreateWindow("Final Project (DEBUG)", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
-    renderer = SDL_CreateRenderer(gameWindow, -1, 0);
     if(SDL_Init(SDL_INIT_EVERYTHING) < 0) { // Initialize all SDL objects
       std::cout << "Failed to initialize SDL!\n";
       return false;
     }
+
+    gameWindow = SDL_CreateWindow("Final Project (DEBUG)", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    renderer = SDL_CreateRenderer(gameWindow, -1, 0);
     
     std::srand(std::time(0)); // Seed the random number generator for object creation
     return true;
@@ -87,9 +88,9 @@ namespace SDL {
     //Destroy all objects
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(gameWindow);
-    tempSurface = nullptr;
-    gameWindow = nullptr;
-    renderer = nullptr;
+    tempSurface = NULL;
+    gameWindow = NULL;
+    renderer = NULL;
     SDL_Quit(); //Quit the program
   }//End Close Shop
 }

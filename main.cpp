@@ -51,11 +51,13 @@ bool init();
 void end();
 void createObjects();
 void destroyObjects();
-void update();
-void draw();
-void displayMenu();
-// Gameplay functions
-void startGame();
+void displayMenu(const Uint8* pressedKeys);
+
+// Gameplay
+namespace game {
+  void update();
+  void draw();
+}
 
 /************************* MAIN GAME FUNCTION ***************************/
 int main() {
@@ -67,8 +69,7 @@ int main() {
   }
 
   // BEGIN GAME LOOP
-  while(SDL::ProgramIsRunning())
-  {
+  while(SDL::ProgramIsRunning()) {
     // Get key press from keyboard and interpret
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
@@ -89,39 +90,19 @@ int main() {
 
     // Display a menu until the player quits or selects 'START'
     if(!playGame) {
-      if(keys[SDL_SCANCODE_SPACE]) {
-        playGame = true;
-        background->scroll();
-        SDL_RenderClear(SDL::renderer);
-        background->draw();
-        logo->draw();
-        SDL_RenderPresent(SDL::renderer);
-        SDL_Delay(1000);
-        continue;
-      }
-      player->nextFrame();
-      player->update();
-      start->nextFrame();
-      background->scroll();
-      SDL_RenderClear(SDL::renderer);
-      background->draw();
-      logo->draw();
-      start->draw();
-      player->draw();
-      SDL_RenderPresent(SDL::renderer);
-      SDL_Delay(20);
-    }   // END DISPLAY MENU
-   // Play the game 
+      displayMenu(keys);
+    }
+    
+    // Play the game 
     else {
-      // if(round < settings::NUM_ROUNDS) {
-        update();
+        game::update();
         SDL_RenderClear(SDL::renderer);
-        draw();
+        game::draw();
         SDL_RenderPresent(SDL::renderer);
         SDL_Delay(20);
-      // }
     }
   }
+
   end();
   return 0;
 }
@@ -188,7 +169,7 @@ void destroyObjects() {
   bottomRow = NULL; 
 }
 
-void update() {
+void game::update() {
     // Advance to next frame
     player->nextFrame();
     background->scroll();
@@ -201,7 +182,7 @@ void update() {
     bottomRow->update();
 }
 
-void draw() {
+void game::draw() {
     background->draw();
     tilemap->draw();
     player->draw();
@@ -211,6 +192,27 @@ void draw() {
     bottomRow->draw();
 }
 
-void displayMenu() {
+void displayMenu(const Uint8* pressedKeys) {
+  if(pressedKeys[SDL_SCANCODE_SPACE]) {
+    playGame = true;
+    background->scroll();
+    SDL_RenderClear(SDL::renderer);
+    background->draw();
+    logo->draw();
+    SDL_RenderPresent(SDL::renderer);
+    SDL_Delay(1000);
+    return;
+  }
 
+  player->nextFrame();
+  player->update();
+  start->nextFrame();
+  background->scroll();
+  SDL_RenderClear(SDL::renderer);
+  background->draw();
+  logo->draw();
+  start->draw();
+  player->draw();
+  SDL_RenderPresent(SDL::renderer);
+  SDL_Delay(20);
 }

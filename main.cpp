@@ -101,19 +101,35 @@ int main() {
     
     // Play the game 
     else {
+      // Check for new round
       if(newRound)
         game::nextRound();
-
+      
+      // Check for player win
       //if(currentRound > settings::NUM_ROUNDS) // If we are past the max number of rounds
         // Player win and quit
 
+      // Check for player loss
       //if(playerLives <= 0)
         // Player lose and quit
 
       game::update();
       SDL_RenderClear(SDL::renderer);
+
+      // Check for player score
+        // explode and mark as destroyed 
+        // playerScore++; 
+
+
       game::draw();
       SDL_RenderPresent(SDL::renderer);
+      
+      // Check for enemy score
+        // playerLives--; 
+        // If score reset positions
+      
+      // Check if all enemies destoryed
+      
       SDL_Delay(20);
     }
   }
@@ -221,6 +237,8 @@ void displayMenu(const Uint8* pressedKeys) {
   if(pressedKeys[SDL_SCANCODE_SPACE]) {
     playGame = true;
     SDL_Delay(200);
+    // Reset player position
+    player->setLocation({ (settings::SCREEN_WIDTH - player->getWidth()) / 2, (settings::SCREEN_HEIGHT - player->getHeight()) - 10 });
   }
 
   player->nextFrame();
@@ -242,6 +260,17 @@ void game::nextRound() {
   newRound = false;
 
   // Set alien speed for current round
+  int alienSpeed;
+  switch (currentRound) {
+    case 1:
+      alienSpeed = 2;
+    case 2:
+      alienSpeed = 3;
+    case 3:
+      alienSpeed = 4;
+    default:
+      alienSpeed = 1;
+  }
 
   // Delete alien rows
   deleteAliens();
@@ -249,5 +278,7 @@ void game::nextRound() {
   createAliens();
   
   // Reset player position
+  player->setLocation({ (settings::SCREEN_WIDTH - player->getWidth()) / 2, (settings::SCREEN_HEIGHT - player->getHeight()) - 10 });
+
   // Wait before starting round
 }

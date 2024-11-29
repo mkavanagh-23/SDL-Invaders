@@ -1,3 +1,4 @@
+#include <SDL2/SDL_timer.h>
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
@@ -33,6 +34,8 @@
 // Global Game Variables
 int playerScore = 0;
 int playerLives = 3;
+int currentRound = 1;
+bool newRound = false;   // Are we at the start of a new round?
 bool playGame = false;  // Menu state variable
 
 // Declare Global game objects
@@ -50,13 +53,16 @@ AlienRow* bottomRow = NULL;
 bool init();
 void end();
 void createObjects();
+void createAliens();
 void destroyObjects();
+void deleteAliens();
 void displayMenu(const Uint8* pressedKeys);
 
 // Gameplay
 namespace game {
   void update();
   void draw();
+  void nextRound();
 }
 
 /************************* MAIN GAME FUNCTION ***************************/
@@ -95,11 +101,20 @@ int main() {
     
     // Play the game 
     else {
-        game::update();
-        SDL_RenderClear(SDL::renderer);
-        game::draw();
-        SDL_RenderPresent(SDL::renderer);
-        SDL_Delay(20);
+      if(newRound)
+        game::nextRound();
+
+      //if(currentRound > settings::NUM_ROUNDS) // If we are past the max number of rounds
+        // Player win and quit
+
+      //if(playerLives <= 0)
+        // Player lose and quit
+
+      game::update();
+      SDL_RenderClear(SDL::renderer);
+      game::draw();
+      SDL_RenderPresent(SDL::renderer);
+      SDL_Delay(20);
     }
   }
 
@@ -118,7 +133,6 @@ bool init() {
 
   //Create game objects
   createObjects();
-
   return true;
 }
 
@@ -133,10 +147,8 @@ void createObjects() {
   logo = new AnimatedSprite("graphics/logo.bmp", 1, 0, "#000000");
   start = new AnimatedSprite("graphics/start.bmp", 2, 50, "#000000");
   player = new AnimatedSprite("graphics/sprite.bmp", 16, 2, "#000000");
-  topRow = new AlienRow(Rank::first);
-  upperRow = new AlienRow(Rank::second);
-  lowerRow = new AlienRow(Rank::third);
-  bottomRow = new AlienRow(Rank::fourth);
+  createAliens();
+
   // Set object state
   logo->setLocation({ (settings::SCREEN_WIDTH - logo->getWidth()) / 2, -30 });
   logo->update();
@@ -145,17 +157,21 @@ void createObjects() {
   player->setSpeed(5);
 }
 
+void createAliens() {
+  topRow = new AlienRow(Rank::first);
+  upperRow = new AlienRow(Rank::second);
+  lowerRow = new AlienRow(Rank::third);
+  bottomRow = new AlienRow(Rank::fourth);
+}
+
 void destroyObjects() {
+  deleteAliens();
   // Delete each object
   delete background;
   delete tilemap;
   delete logo;
   delete start;
   delete player;
-  delete topRow;
-  delete upperRow;
-  delete lowerRow;
-  delete bottomRow;
 
   // Reset pointers to prevent undefined behavior
   background = NULL;
@@ -163,10 +179,18 @@ void destroyObjects() {
   logo = NULL;
   start = NULL;
   player = NULL;
+}
+
+void deleteAliens() {
+  delete topRow;
+  delete upperRow;
+  delete lowerRow;
+  delete bottomRow;
   topRow = NULL;
   upperRow = NULL;
   lowerRow = NULL;
   bottomRow = NULL; 
+
 }
 
 void game::update() {
@@ -193,15 +217,10 @@ void game::draw() {
 }
 
 void displayMenu(const Uint8* pressedKeys) {
+  // Check if player presses start
   if(pressedKeys[SDL_SCANCODE_SPACE]) {
     playGame = true;
-    background->scroll();
-    SDL_RenderClear(SDL::renderer);
-    background->draw();
-    logo->draw();
-    SDL_RenderPresent(SDL::renderer);
-    SDL_Delay(1000);
-    return;
+    SDL_Delay(200);
   }
 
   player->nextFrame();
@@ -215,4 +234,20 @@ void displayMenu(const Uint8* pressedKeys) {
   player->draw();
   SDL_RenderPresent(SDL::renderer);
   SDL_Delay(20);
+}
+
+void game::nextRound() {
+  // Increment round counter and reset newRound flag
+  currentRound++;
+  newRound = false;
+
+  // Set alien speed for current round
+
+  // Delete alien rows
+  deleteAliens();
+  // And regenerate new ones
+  createAliens();
+  
+  // Reset player position
+  // Wait before starting round
 }

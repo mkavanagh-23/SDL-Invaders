@@ -51,6 +51,8 @@ bool init();
 void end();
 void createObjects();
 void destroyObjects();
+void updateAliens();
+void drawAliens();
 // Gameplay functions
 void displayMenu();
 void startGame();
@@ -116,19 +118,13 @@ int main() {
       // if(round < settings::NUM_ROUNDS) {
         player->nextFrame();
         player->update();
-        topRow->update();
-        upperRow->update();
-        lowerRow->update();
-        bottomRow->update();
+        updateAliens();
         background->scroll();
         SDL_RenderClear(SDL::renderer);
         background->draw();
         tilemap->draw();
         player->draw();
-        topRow->draw();
-        upperRow->draw();
-        lowerRow->draw();
-        bottomRow->draw();
+        drawAliens();
         SDL_RenderPresent(SDL::renderer);
         SDL_Delay(20);
       // }
@@ -198,4 +194,18 @@ void destroyObjects() {
   upperRow = NULL;
   lowerRow = NULL;
   bottomRow = NULL; 
+}
+
+void updateAliens() {
+    topRow->update();
+    upperRow->update();
+    lowerRow->update();
+    bottomRow->update();
+}
+
+void drawAliens() {
+    topRow->draw();
+    upperRow->draw();
+    lowerRow->draw();
+    bottomRow->draw();
 }

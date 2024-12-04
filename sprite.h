@@ -160,6 +160,7 @@ struct Bullets {
   public:
     Bullets();
     ~Bullets() = default;
+    void update();
     void draw();
     void fire(const AnimatedSprite& player);
 

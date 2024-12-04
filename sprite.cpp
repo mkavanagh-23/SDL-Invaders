@@ -281,6 +281,14 @@ void Bullets::fire(const AnimatedSprite& player) {
 
 }
 
+void Bullets::update() {
+  for(int i = 0; i < MAX_ACTIVE; ++i) {
+    if(armory[i].isActive()) {
+      armory[i].moveUp();
+    }
+  }
+}
+
 void Bullets::draw() {
   for(int i = 0; i < MAX_ACTIVE; ++i) {
     if(armory[i].isActive()) {

@@ -61,13 +61,13 @@ void createObjects();
 void createAliens();
 void destroyObjects();
 void deleteAliens();
-void displayMenu(const Uint8* pressedKeys);
 
 // Gameplay
 namespace game {
   void update();
   void draw();
   void nextRound();
+  void displayMenu(const Uint8* pressedKeys);
 }
 
 /************************* MAIN GAME FUNCTION ***************************/
@@ -89,11 +89,11 @@ int main() {
       break;
 
     // Check for left and right arrow keypresses
+    // This is outside the game loop so the player can have fun before pressing start
     if(keys[SDL_SCANCODE_LEFT]) {
       player->setDirection(Direction::left);
       player->move();
     }
-
     if(keys[SDL_SCANCODE_RIGHT]) {
       player->setDirection(Direction::right);
       player->move();
@@ -101,7 +101,7 @@ int main() {
 
     // Display a menu until the player quits or selects 'START'
     if(!playGame) {
-      displayMenu(keys);
+      game::displayMenu(keys);
     }
     
     // Play the game 
@@ -235,6 +235,7 @@ void game::update() {
     upperRow->update();
     lowerRow->update();
     bottomRow->update();
+    bullets->update();
 }
 
 void game::draw() {
@@ -248,7 +249,7 @@ void game::draw() {
     bullets->draw();
 }
 
-void displayMenu(const Uint8* pressedKeys) {
+void game::displayMenu(const Uint8* pressedKeys) {
   // Check if player presses start
   if(pressedKeys[SDL_SCANCODE_SPACE]) {
     playGame = true;

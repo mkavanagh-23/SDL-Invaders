@@ -1,5 +1,3 @@
-#include <SDL2/SDL_scancode.h>
-#include <SDL2/SDL_timer.h>
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
@@ -19,14 +17,8 @@
   // For each UFO destroyed, playerScore++
   // 40 total ufos... can use either score / 40 to determine round (likely faster)
   // or we can check each row for empty state (likely slower but more logical)
-// Set up rounds
-  // 3 Rounds
-  // Rounds progress when all sprites are destroyed
-  // At the start of each round, instantiate a new set of enemy sprites
-  // First round - easy (slow), second faster, third randomized value
 // Set up lives
   // 3 Lives
-  // Lose life when a non-empty row touches a solid tile
   // or do we want to just want to check collision with the player sprite and 'y + height' with the y-axis?
   // Upon lost life, round continues but enemy posititions are reset (destroyed stay destroyed)
 // Bind enemy speed to background scroll speed and increment with each round
@@ -35,8 +27,8 @@
 /****************************** GLOBAL DATA ***********************************/
 
 // Global Game Variables
-int playerScore = 0;
-int playerLives = 3;
+int playerScore = 0;    // Player's score
+int playerLives = 3;    // Player's lives
 //int currentRound = 1;
 //bool newRound = false;   // Are we at the start of a new round?
 bool playGame = false;  // Menu state variable
@@ -47,33 +39,34 @@ Tilemap* tilemap = NULL;
 AnimatedSprite* logo = NULL;
 AnimatedSprite* start = NULL;
 AnimatedSprite* player = NULL;
-AlienRow* topRow = NULL;
+AlienRow* topRow = NULL;    // Alien Rows hold 10 alien sprites
 AlienRow* upperRow = NULL;
 AlienRow* lowerRow = NULL;
 AlienRow* bottomRow = NULL;
-Bullets* bullets = NULL;
+Bullets* bullets = NULL;    // Bullets holds 5 bullets to rotate through
 
 // Function Prototypes
 // Game state functions
-void createObjects();
+void createObjects();   // Instantiate game objects and set initial states
 void createAliens();
-void destroyObjects();
+void destroyObjects();  // Free memory associated with instantiated objects and nullify pointers
 void deleteAliens();
 
-// Gameplay
+// Gameplay Functions
 namespace game {
-  bool init();
-  void end();
-  void update();
-  void draw();
+  bool init();  // Initialize all game objects
+  void end();   // Destory game objects and end game
+  void update();    // Update the state of each object
+  void draw();  // Draw each object to the render
 //  void nextRound();
-  void displayMenu(const Uint8* pressedKeys);
+  void displayMenu(const Uint8* pressedKeys);   // Display a start menu
 }
 
 /************************* MAIN GAME FUNCTION ***************************/
 int main() {
   
   // Initialize libraries and static data members
+  // Check for successful initialization, exit if it failed
   if(!game::init()) {
     std::cout << "Critical error, terminating program\n";
     return 1;
@@ -84,11 +77,12 @@ int main() {
     // Get key press from keyboard and interpret
     const Uint8 *keys = SDL_GetKeyboardState(NULL);
 
-    // End game with 'ESC'
+    // End game at any time with 'ESC'
     if(keys[SDL_SCANCODE_ESCAPE])
       break;
 
     // Check for left and right arrow keypresses
+    // Move the player sprite accordingly
     // This is outside the game loop so the player can have fun before pressing start
     if(keys[SDL_SCANCODE_LEFT]) {
       player->setDirection(Direction::left);
@@ -99,7 +93,7 @@ int main() {
       player->move();
     }
 
-    // Display a menu until the player quits or selects 'START'
+    // Display a menu until the player quits or selects 'START' (Space Key)
     if(!playGame) {
       game::displayMenu(keys);
     }
@@ -110,36 +104,25 @@ int main() {
       //if(newRound)
       //  game::nextRound();
       
-      bulletTimer++;
+      // Check for Space key press
+      // If pressed, fire a bullet from the player sprite
+      bulletTimer++;        // Increment the bullet timer to see if we can fire this tick
       if(keys[SDL_SCANCODE_SPACE]) {
         bullets->fire(*player);
       }
       
-      // Check for player win
-      //if(currentRound > settings::NUM_ROUNDS) // If we are past the max number of rounds
-        // Player win and quit
-
-      // Check for player loss
-      //if(playerLives <= 0)
-        // Player lose and quit
-
+      // Update state of all game objects before drawing
       game::update();
       SDL_RenderClear(SDL::renderer);
-
-      // Check for player score
-        // explode and mark as destroyed 
-        // playerScore++; 
-
-
+      
+      // Draw all active objects to the render
       game::draw();
       SDL_RenderPresent(SDL::renderer);
-      
-      // Check for enemy score
-        // playerLives--; 
-        // If score reset positions
-      
-      // Check if all enemies destoryed
-      
+
+      // CHECK COLLISIONS!!
+      // CHECK FOR WIN/LOSS
+      // CHECK FOR ALL ENEMIES DESTROYED
+
       SDL_Delay(20);
     }
   }
@@ -157,12 +140,12 @@ bool game::init() {
   if(!Alien::init() || !Bullet::init()) {
     return false;
   }
-
   SDL::static_init = true;
 
   //Create game objects
   createObjects();
-  return true;
+
+  return true;  // If we made it this far then we initialized successfully
 }
 
 void game::end() {
@@ -250,6 +233,7 @@ void game::draw() {
     bullets->draw();
 }
 
+/*********** NEEDS HEADER *************/
 void game::displayMenu(const Uint8* pressedKeys) {
   // Check if player presses start
   if(pressedKeys[SDL_SCANCODE_SPACE]) {

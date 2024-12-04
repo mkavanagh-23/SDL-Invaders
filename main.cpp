@@ -109,7 +109,8 @@ int main() {
       // Check for new round
       if(newRound)
         game::nextRound();
-
+      
+      bulletTimer++;
       if(keys[SDL_SCANCODE_SPACE]) {
         bullets->fire(*player);
       }

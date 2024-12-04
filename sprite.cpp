@@ -16,7 +16,8 @@ SDL_Texture* bulletTextureSheet = NULL;
 std::string bulletSheetPath = "graphics/bullet.bmp";
 std::string bulletTransparency = "#000000";
 int bulletCounter = 0;
-int bulletTimer = 0;
+const int BULLET_WAIT = 40;
+int bulletTimer = BULLET_WAIT;
 
 /*** AnimatedSprite Functions ***/
 // Constructors
@@ -217,7 +218,7 @@ Bullet::Bullet()
   int sourceX = 0;
   int sourceY = 0;
   setLocation({-100, -100});
-  setSpeed(10);
+  setSpeed(15);
   active = false;
   // And fill the source and dest rectangles
   SDL::FillRect(rectSource, sourceX, sourceY, width, height);
@@ -270,15 +271,17 @@ Bullets::Bullets()
 {}
 
 void Bullets::fire(const AnimatedSprite& player) {
-  int xPos = player.getLocation().x + (player.getWidth() - armory[bulletCounter].getWidth()) / 2;
-  int yPos = player.getLocation().y - armory[bulletCounter].getHeight();
-  armory[bulletCounter].setLocation({xPos, yPos});
-  armory[bulletCounter].shoot();
-  bulletCounter++;
-  if(bulletCounter >= MAX_ACTIVE - 1) {
-    bulletCounter = 0;
+  if(bulletTimer >= BULLET_WAIT) {
+    int xPos = player.getLocation().x + (player.getWidth() - armory[bulletCounter].getWidth()) / 2;
+    int yPos = player.getLocation().y - armory[bulletCounter].getHeight();
+    armory[bulletCounter].setLocation({xPos, yPos});
+    armory[bulletCounter].shoot();
+    bulletCounter++;
+    if(bulletCounter >= MAX_ACTIVE - 1) {
+      bulletCounter = 0;
+    }
+    bulletTimer = 0;
   }
-
 }
 
 void Bullets::update() {

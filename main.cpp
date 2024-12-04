@@ -37,8 +37,8 @@
 // Global Game Variables
 int playerScore = 0;
 int playerLives = 3;
-int currentRound = 1;
-bool newRound = false;   // Are we at the start of a new round?
+//int currentRound = 1;
+//bool newRound = false;   // Are we at the start of a new round?
 bool playGame = false;  // Menu state variable
 
 // Declare Global game objects
@@ -55,8 +55,6 @@ Bullets* bullets = NULL;
 
 // Function Prototypes
 // Game state functions
-bool init();
-void end();
 void createObjects();
 void createAliens();
 void destroyObjects();
@@ -64,9 +62,11 @@ void deleteAliens();
 
 // Gameplay
 namespace game {
+  bool init();
+  void end();
   void update();
   void draw();
-  void nextRound();
+//  void nextRound();
   void displayMenu(const Uint8* pressedKeys);
 }
 
@@ -74,7 +74,7 @@ namespace game {
 int main() {
   
   // Initialize libraries and static data members
-  if(!init()) {
+  if(!game::init()) {
     std::cout << "Critical error, terminating program\n";
     return 1;
   }
@@ -107,8 +107,8 @@ int main() {
     // Play the game 
     else {
       // Check for new round
-      if(newRound)
-        game::nextRound();
+      //if(newRound)
+      //  game::nextRound();
       
       bulletTimer++;
       if(keys[SDL_SCANCODE_SPACE]) {
@@ -144,11 +144,11 @@ int main() {
     }
   }
 
-  end();
+  game::end();
   return 0;
 }
 
-bool init() {
+bool game::init() {
   //Initialize SDL
   if(!SDL::Init())
     return false;
@@ -165,7 +165,7 @@ bool init() {
   return true;
 }
 
-void end() {
+void game::end() {
   destroyObjects();
   SDL::CloseShop();
 }
@@ -272,31 +272,31 @@ void game::displayMenu(const Uint8* pressedKeys) {
   SDL_Delay(20);
 }
 
-void game::nextRound() {
-  // Increment round counter and reset newRound flag
-  currentRound++;
-  newRound = false;
-
-  // Set alien speed for current round
-  int alienSpeed;
-  switch (currentRound) {
-    case 1:
-      alienSpeed = 2;
-    case 2:
-      alienSpeed = 3;
-    case 3:
-      alienSpeed = 4;
-    default:
-      alienSpeed = 1;
-  }
-
-  // Delete alien rows
-  deleteAliens();
-  // And regenerate new ones
-  createAliens();
-  
-  // Reset player position
-  player->setLocation({ (settings::SCREEN_WIDTH - player->getWidth()) / 2, (settings::SCREEN_HEIGHT - player->getHeight()) - 10 });
-
-  // Wait before starting round
-}
+// void game::nextRound() {
+//   // Increment round counter and reset newRound flag
+//   currentRound++;
+//   newRound = false;
+// 
+//   // Set alien speed for current round
+//   int alienSpeed;
+//   switch (currentRound) {
+//     case 1:
+//       alienSpeed = 2;
+//     case 2:
+//       alienSpeed = 3;
+//     case 3:
+//       alienSpeed = 4;
+//     default:
+//       alienSpeed = 1;
+//   }
+// 
+//   // Delete alien rows
+//   deleteAliens();
+//   // And regenerate new ones
+//   createAliens();
+//   
+//   // Reset player position
+//   player->setLocation({ (settings::SCREEN_WIDTH - player->getWidth()) / 2, (settings::SCREEN_HEIGHT - player->getHeight()) - 10 });
+// 
+//   // Wait before starting round
+// }

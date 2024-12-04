@@ -15,7 +15,7 @@ std::string alienTransparency = "#000000";
 SDL_Texture* bulletTextureSheet = NULL;
 std::string bulletSheetPath = "graphics/bullet.bmp";
 std::string bulletTransparency = "#000000";
-int bulletCounter = 0;
+int bulletCounter = 4;
 const int BULLET_WAIT = 40;
 int bulletTimer = BULLET_WAIT;
 
@@ -277,10 +277,11 @@ void Bullets::fire(const AnimatedSprite& player) {
     armory[bulletCounter].setLocation({xPos, yPos});
     armory[bulletCounter].shoot();
     bulletCounter++;
-    if(bulletCounter >= MAX_ACTIVE - 1) {
+    if(bulletCounter >= MAX_ACTIVE) {
       bulletCounter = 0;
     }
     bulletTimer = 0;
+    std::cout << "Firing bullet #" << bulletCounter + 1 << '\n';
   }
 }
 

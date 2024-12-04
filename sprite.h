@@ -6,11 +6,6 @@
 #include <iostream>
 #include "types.h"
 
-// Static variables for alien texture
-extern SDL_Texture* alienTextureSheet;      // Texture sheet to share for all alien objects
-extern std::string alienSheetPath;
-extern std::string alienTransparency;
-
 // Animated sprite object
 class AnimatedSprite {
   protected:
@@ -50,12 +45,12 @@ class AnimatedSprite {
     AnimatedSprite(std::string filePath, int frames, int frameDelay);    // Helper constructor for child classes, ensure static member initialization
   
   public:
-    int getWidth() { return width; }    // Get the sprite width
-    int getHeight() { return height; }  // Get the sprite height
+    int getWidth() const { return width; }    // Get the sprite width
+    int getHeight() const { return height; }  // Get the sprite height
     void nextFrame(); // Advance sprite to next frame on sheet
     void draw();  // Draw sprite to render
     void setLocation(const Point2d& location);
-    Point2d getLocation() { return position; }
+    Point2d getLocation() const { return position; }
     void setDirection(const Direction& direction);
     void setSpeed(const int speed);
     bool move();
@@ -64,6 +59,12 @@ class AnimatedSprite {
 
 // Alien object
 // Derives from AnimatedSprite parent
+
+// Static variables for alien texture
+extern SDL_Texture* alienTextureSheet;      // Texture sheet to share for all alien objects
+extern std::string alienSheetPath;
+extern std::string alienTransparency;
+
 class Alien : public AnimatedSprite {
   private:
     //Enum class to hold color values
@@ -83,8 +84,7 @@ class Alien : public AnimatedSprite {
     Color color;
   
   public:
-    Alien(std::string filePath, int frames, int frameDelay, const RGB& transparencyColor);
-    Alien(std::string filePath, int frames, int frameDelay, std::string transparencyHex);
+    Alien();
     ~Alien() = default;
 
     friend std::ostream& operator<<(std::ostream& out, const Alien& alien);
@@ -92,6 +92,7 @@ class Alien : public AnimatedSprite {
   public:
     static bool init();
     void moveDown();
+    friend class AlienRow;  // Allow AlienRow to access private and protected memebers
 
 };
 
@@ -120,6 +121,47 @@ class AlienRow {
     void moveDown();
     void update();
     void draw();
+
+};
+
+// Static variables for bullet texture
+extern SDL_Texture* bulletTextureSheet;
+extern std::string bulletSheetPath;
+extern std::string bulletTransparency;
+extern int bulletCounter; // Holds the index of the next bullet to fire
+extern int bulletTimer;   // Timer for all objects to wait before firing another bullet
+
+class Bullet : public AnimatedSprite {
+  public:
+  private:
+    bool active;  // Is the current object in an active state??
+  public:
+    Bullet(); // Construct an object
+    ~Bullet() = default;
+
+    friend std::ostream& operator<<(std::ostream& out, const Bullet& bullet);
+
+  public: 
+    static bool init();
+    bool isActive() { return active; }
+    void moveUp();
+    void shoot();
+    // Fire/Shoot object
+    // Public "shoot"
+    friend class Bullets; // Allow Bullets to access private and protected members
+};
+
+struct Bullets {
+  public:
+    static const int MAX_ACTIVE = 5;  // Maximum number of bullet objects active at a single time
+    static const int BULLET_SPEED = 10;
+  private:
+    Bullet armory[MAX_ACTIVE];  // Store in array to make easier to work with
+  public:
+    Bullets();
+    ~Bullets() = default;
+    void draw();
+    void fire(const AnimatedSprite& player);
 
 };
 

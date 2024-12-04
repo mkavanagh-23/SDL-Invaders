@@ -1,6 +1,7 @@
 #include "sprite.h"
 #include "settings.h"
 #include "engine.h"
+#include "types.h"
 #include <string>
 #include <SDL2/SDL.h>
 #include <cassert>
@@ -9,6 +10,13 @@
 SDL_Texture* alienTextureSheet = NULL;      // Texture sheet to share for all alien objects
 std::string alienSheetPath = "graphics/ufos.bmp";
 std::string alienTransparency = "#000000";
+
+// Static bullet texture
+SDL_Texture* bulletTextureSheet = NULL;
+std::string bulletSheetPath = "graphics/bullet.bmp";
+std::string bulletTransparency = "#000000";
+int bulletCounter = 0;
+int bulletTimer = 0;
 
 /*** AnimatedSprite Functions ***/
 // Constructors
@@ -94,10 +102,10 @@ void AnimatedSprite::update() {
 }
 
 /*** Alien Functions ***/
-Alien::Alien(std::string filePath, int frames, int frameDelay, const RGB& transparencyColor)
-  : AnimatedSprite(filePath, frames, frameDelay)
+Alien::Alien()
+  : AnimatedSprite(alienSheetPath, 2, std::rand() % 50 + 30)
 {
-  transparency = transparencyColor; // Set the transparency member variable
+  transparency = hexToRGB(alienTransparency); // Set the transparency member variable
   textureSheet = alienTextureSheet; // Set the texture pointer to point at the alienTextureSheet
   SDL_QueryTexture(textureSheet, NULL, NULL, &rectSheet.w, &rectSheet.h);
   width = rectSheet.w / MAX_SPRITE_FRAME;   // Get the width of a single sprite
@@ -114,10 +122,6 @@ Alien::Alien(std::string filePath, int frames, int frameDelay, const RGB& transp
   SDL::FillRect(rectPlacement, position.x, position.y, width, height);
 }
 
-Alien::Alien(std::string filePath, int frames, int frameDelay, std::string transparencyHex)
-  : Alien(filePath, frames, frameDelay, hexToRGB(transparencyHex))
-{}
-
 bool Alien::init(){
   //Initialize the static alien texture
   RGB color = hexToRGB(alienTransparency);
@@ -125,11 +129,11 @@ bool Alien::init(){
   SDL::tempSurface = SDL::setTransparentColor(SDL::tempSurface, color.r, color.g, color.b);
   alienTextureSheet = SDL::loadTexture(SDL::tempSurface);
   if(alienTextureSheet == NULL) {
-    std::cout << "Failed to intitialize static textures!\n";
+    std::cout << "Failed to intitialize static alien texture!\n";
     return false;
   }
 
-  SDL::static_init = true;  // Mark static initialization as completed
+  SDL::alien_init = true;  // Mark static initialization as completed
   return true;
 }
 
@@ -139,16 +143,16 @@ void Alien::moveDown(){
 
 AlienRow::AlienRow(Rank position)
   : aliens{
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency),
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency),
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency),
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency),
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency),
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency),
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency),
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency),
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency),
-      Alien(alienSheetPath, 2, std::rand() % 50 + 30, alienTransparency)
+      Alien(),
+      Alien(),
+      Alien(),
+      Alien(),
+      Alien(),
+      Alien(),
+      Alien(),
+      Alien(),
+      Alien(),
+      Alien()
     },
     RANK{position}
 {
@@ -198,6 +202,90 @@ void AlienRow::update(){
 void AlienRow::draw(){
   for(int i = 0; i < SIZE; ++i) {
     aliens[i].draw();
+  }
+}
+
+Bullet::Bullet() 
+  : AnimatedSprite(bulletSheetPath, 1, 0)
+{
+  transparency = hexToRGB(bulletTransparency); // Set the transparency member variable
+  textureSheet = bulletTextureSheet; // Set the texture pointer to point at the alienTextureSheet
+  SDL_QueryTexture(textureSheet, NULL, NULL, &rectSheet.w, &rectSheet.h);
+  width = rectSheet.w / MAX_SPRITE_FRAME;   // Get the width of a single sprite
+  height = rectSheet.h;  // Get the height of a single sprite
+    // Set source rectangle positioning based on animation data
+  int sourceX = 0;
+  int sourceY = 0;
+  setLocation({-100, -100});
+  setSpeed(10);
+  active = false;
+  // And fill the source and dest rectangles
+  SDL::FillRect(rectSource, sourceX, sourceY, width, height);
+  SDL::FillRect(rectPlacement, position.x, position.y, width, height);
+}
+
+// Initialize static bullet members
+bool Bullet::init(){
+  //Initialize the static alien texture
+  RGB color = hexToRGB(bulletTransparency);
+  SDL::tempSurface = SDL::loadImage(bulletSheetPath);
+  SDL::tempSurface = SDL::setTransparentColor(SDL::tempSurface, color.r, color.g, color.b);
+  bulletTextureSheet = SDL::loadTexture(SDL::tempSurface);
+  if(bulletTextureSheet == NULL) {
+    std::cout << "Failed to intitialize static bullet texture!\n";
+    return false;
+  }
+
+  SDL::bullet_init = true;  // Mark static initialization as completed
+  return true;
+}
+
+void Bullet::shoot() {
+  // Set the bullet to active
+  active = true;
+  // And update it's position
+  update();
+}
+
+// Move the bullet upward by SPEED
+// No change to xPosition values
+void Bullet::moveUp(){
+  position.y -= SPEED;
+  // Check if off the screen
+  if(position.y <= (height * -1)) {
+    active = false;
+  }
+  // And update render location
+  update();
+}
+
+Bullets::Bullets() 
+  : armory{
+    Bullet(),
+    Bullet(),
+    Bullet(),
+    Bullet(),
+    Bullet()
+  }
+{}
+
+void Bullets::fire(const AnimatedSprite& player) {
+  int xPos = player.getLocation().x + (player.getWidth() - armory[bulletCounter].getWidth()) / 2;
+  int yPos = player.getLocation().y - armory[bulletCounter].getHeight();
+  armory[bulletCounter].setLocation({xPos, yPos});
+  armory[bulletCounter].shoot();
+  bulletCounter++;
+  if(bulletCounter >= MAX_ACTIVE - 1) {
+    bulletCounter = 0;
+  }
+
+}
+
+void Bullets::draw() {
+  for(int i = 0; i < MAX_ACTIVE; ++i) {
+    if(armory[i].isActive()) {
+      armory[i].draw();
+    }
   }
 }
 
@@ -270,5 +358,11 @@ std::ostream& operator<<(std::ostream& out, const AlienRow& row) {
     out << '*' << row.aliens[i] << '\n';
   }
 
+  return out;
+}
+
+// Print a bullet object
+std::ostream& operator<<(std::ostream& out, const Bullet& bullet) {
+  out << "Bullet " << static_cast<const AnimatedSprite&>(bullet);
   return out;
 }

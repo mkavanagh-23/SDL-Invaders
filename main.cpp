@@ -1,3 +1,4 @@
+#include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_timer.h>
 #include <cstdlib>
 #include <ctime>
@@ -10,6 +11,8 @@
 #include "sprite.h"
 #include "background.h"
 #include "settings.h"
+
+// COMPILE WITH --std=c++14
 
 // TODO:
 // Set up scoring
@@ -48,6 +51,8 @@ AlienRow* topRow = NULL;
 AlienRow* upperRow = NULL;
 AlienRow* lowerRow = NULL;
 AlienRow* bottomRow = NULL;
+Bullets* bullets = NULL;
+
 // Function Prototypes
 // Game state functions
 bool init();
@@ -104,6 +109,10 @@ int main() {
       // Check for new round
       if(newRound)
         game::nextRound();
+
+      if(keys[SDL_SCANCODE_SPACE]) {
+        bullets->fire(*player);
+      }
       
       // Check for player win
       //if(currentRound > settings::NUM_ROUNDS) // If we are past the max number of rounds
@@ -144,8 +153,11 @@ bool init() {
     return false;
 
   //Initialize static textures
-  if(!Alien::init())
+  if(!Alien::init() || !Bullet::init()) {
     return false;
+  }
+
+  SDL::static_init = true;
 
   //Create game objects
   createObjects();
@@ -163,6 +175,7 @@ void createObjects() {
   logo = new AnimatedSprite("graphics/logo.bmp", 1, 0, "#000000");
   start = new AnimatedSprite("graphics/start.bmp", 2, 50, "#000000");
   player = new AnimatedSprite("graphics/sprite.bmp", 16, 2, "#000000");
+  bullets = new Bullets();
   createAliens();
 
   // Set object state
@@ -188,6 +201,7 @@ void destroyObjects() {
   delete logo;
   delete start;
   delete player;
+  delete bullets;
 
   // Reset pointers to prevent undefined behavior
   background = NULL;
@@ -195,6 +209,7 @@ void destroyObjects() {
   logo = NULL;
   start = NULL;
   player = NULL;
+  bullets = NULL;
 }
 
 void deleteAliens() {
@@ -230,6 +245,7 @@ void game::draw() {
     upperRow->draw();
     lowerRow->draw();
     bottomRow->draw();
+    bullets->draw();
 }
 
 void displayMenu(const Uint8* pressedKeys) {

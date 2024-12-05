@@ -15,7 +15,7 @@ CSC222-301W  | Fall 2024
 
 The game is similar to "Space Invaders": your ship is under attack and you must defend it from the invading aliens!
 
-The player controls a ship and can move left and right with the respective ARROW KEYS. Bullets can be fired upward towards the invading aliens by pressing the SPACE KEY.
+The player controls a ship and can move left and right with the respective ARROW KEYS. Bullets can be fired upward towards the invading aliens by pressing the SPACE KEY. The game can be ended at any time by pressing the ESC key.
 
 For each alien destroyed, the player gains a point. If an alien reaches the player or their base, the player loses a life. If the player has no lives remaining, they lose the game. Points and lives can be tracked by checking the game window's title bar.
 

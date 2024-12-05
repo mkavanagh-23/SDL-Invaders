@@ -85,6 +85,7 @@ class Alien : public AnimatedSprite {
 
     Color color;
     bool destroyed = false;
+    bool exploded = false;
   
   public:
     Alien(int speed);
@@ -131,6 +132,7 @@ class AlienRow {
     void update();
     void draw();
     bool isEmpty() { return empty; }
+    void checkExplode();
 
     friend class Bullets;   // Allow bullets to access members so we can determine collisions
 
@@ -178,5 +180,7 @@ struct Bullets {
     bool checkCollisions(AlienRow& alienRow);
 
 };
+
+void explode(const Point2d& location, int delay);
 
 #endif

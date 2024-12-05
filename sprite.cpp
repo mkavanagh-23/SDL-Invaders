@@ -22,6 +22,7 @@ int bulletTimer = BULLET_WAIT;
 
 extern int playerScore;
 extern int playerLives;
+extern AnimatedSprite* explosion;
 
 /*** AnimatedSprite Functions ***/
 // Constructors
@@ -195,6 +196,7 @@ void AlienRow::resetRound(int round) {
   for(int i = 0; i < SIZE; ++i) {   // For each alien
     aliens[i].setSpeed(round);
     aliens[i].destroyed = false;
+    aliens[i].exploded = false;
 
     //Randomize color
     aliens[i].color = Alien::Color(std::rand() % int(Alien::Color::MAX_COLORS));
@@ -240,6 +242,7 @@ bool AlienRow::checkCollisions(const AnimatedSprite& playerSprite){
       if(aliens[i].isActive()) {    // If the alien is active
         if(checkCollision(aliens[i], playerSprite) || (aliens[i].getLocation().y + aliens[i].getHeight()) >= 25*32) { // If the player collides with the sprite or sprite reaches the player base
           playerLives--;    // Decrement player life
+          explode(playerSprite.getLocation(), 50);
           // Reset positioning
           // Return true, we don't need to check any further
           return true;
@@ -248,6 +251,15 @@ bool AlienRow::checkCollisions(const AnimatedSprite& playerSprite){
     }
   }
   return false;
+}
+
+void AlienRow::checkExplode() {
+  for(int i = 0; i < SIZE; ++i) {
+    if(aliens[i].destroyed && !(aliens[i].exploded)) {
+      explode(aliens[i].getLocation(), 10);
+      aliens[i].exploded = true;
+    }
+  }
 }
 
 Bullet::Bullet() 
@@ -410,6 +422,19 @@ bool checkCollision(const AnimatedSprite& sprite1, const AnimatedSprite& sprite2
     if(sprite2.getLocation().y >= sprite1.getLocation().y + sprite1.getHeight())
         return false;
     return true;
+}
+
+void explode(const Point2d& location, int delay) {
+
+  explosion->setLocation(location);
+  explosion->update();
+
+  for(int pos = 0; pos < 16; pos++) {
+    explosion->nextFrame();
+    explosion->draw();
+    SDL_RenderPresent(SDL::renderer);
+    SDL_Delay(delay);
+  }
 }
 
 // Print info for an Alien object

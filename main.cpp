@@ -51,6 +51,7 @@ AnimatedSprite* winLogo = NULL;
 AnimatedSprite* loseLogo = NULL;
 AnimatedSprite* start = NULL;
 AnimatedSprite* player = NULL;
+AnimatedSprite* explosion = NULL;
 AlienRow* topRow = NULL;    // Alien Rows hold 10 alien sprites
 AlienRow* upperRow = NULL;
 AlienRow* lowerRow = NULL;
@@ -73,7 +74,7 @@ namespace game {
   void nextRound();
   void setMenu(int round);
   void displayMenu(const Uint8* pressedKeys);   // Display a start menu
-  void displayEnd(); 
+  void displayEnd();
 }
 
 /************************* MAIN GAME FUNCTION ***************************/
@@ -144,6 +145,10 @@ int main(int argc, char* argv[]) {
         bullets->checkCollisions(*lowerRow);
         bullets->checkCollisions(*upperRow);
         bullets->checkCollisions(*topRow);
+        bottomRow->checkExplode();
+        lowerRow->checkExplode();
+        upperRow->checkExplode();
+        topRow->checkExplode();
         if(bottomRow->checkCollisions(*player) || lowerRow->checkCollisions(*player) || upperRow->checkCollisions(*player) || topRow->checkCollisions(*player)) {
           topRow->resetLocation();
           upperRow->resetLocation();
@@ -216,6 +221,7 @@ void createObjects() {
   loseLogo = new AnimatedSprite("graphics/lose.bmp", 1, 0, "#000000");
   start = new AnimatedSprite("graphics/start.bmp", 2, 50, "#000000");
   player = new AnimatedSprite("graphics/sprite.bmp", 16, 2, "#000000");
+  explosion = new AnimatedSprite("graphics/explosion.bmp", 8, 1, "#000000");
   bullets = new Bullets();
   createAliens(1);
 
@@ -256,6 +262,7 @@ void destroyObjects() {
   else
     delete winLogo;
   delete player;
+  delete explosion;
   delete bullets;
 
   // Reset pointers to prevent undefined behavior
@@ -266,6 +273,7 @@ void destroyObjects() {
   winLogo = NULL;
   loseLogo = NULL;
   player = NULL;
+  explosion = NULL;
   bullets = NULL;
 }
 

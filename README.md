@@ -1,5 +1,7 @@
 Matthew Kavanagh
+
 SUNY OCC
+
 CSC222-301W  | Fall 2024
 
 ![sdl invaders](https://github.com/mkavanagh-23/SDL-Invaders/blob/e50ce30b724bbab0c4b9557e076231643073594f/graphics/screenshot.png)

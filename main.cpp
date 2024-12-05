@@ -121,6 +121,11 @@ int main(int argc, char* argv[]) {
 
       // CHECK COLLISIONS!!
       bullets->checkCollisions(*topRow, *upperRow, *lowerRow, *bottomRow);
+      bottomRow->checkCollisions(*player);
+      lowerRow->checkCollisions(*player);
+      upperRow->checkCollisions(*player);
+      topRow->checkCollisions(*player);
+      
       // CHECK FOR WIN/LOSS
       // CHECK FOR ALL ENEMIES DESTROYED
 

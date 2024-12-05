@@ -142,6 +142,7 @@ void Alien::moveDown(){
   position.y += (height + AlienRow::GAP_SIZE);
 }
 
+
 AlienRow::AlienRow(Rank position)
   : aliens{
       Alien(),
@@ -204,6 +205,20 @@ void AlienRow::draw(){
   for(int i = 0; i < SIZE; ++i) {
     aliens[i].draw();
   }
+}
+
+bool AlienRow::checkCollisions(const AnimatedSprite& playerSprite){
+  if(!empty) {  // If the row is not empty
+    for(int i = 0; i < SIZE; ++i) {   // For each alien in the row
+      if(checkCollision(aliens[i], playerSprite) || (aliens[i].getLocation().y + aliens[i].getHeight()) >= 25*32) { // If the player collides with the sprite or sprite reaches the player base
+        std::cout << "Alien collided with player, lose a life.\n";
+        // Decrement player life
+        // Reset positioning
+        // Return true, we don't need to check any further
+      }
+    }
+  }
+  return false;
 }
 
 Bullet::Bullet() 

@@ -84,6 +84,7 @@ class Alien : public AnimatedSprite {
     };
 
     Color color;
+    bool destroyed = false;
   
   public:
     Alien();
@@ -95,6 +96,7 @@ class Alien : public AnimatedSprite {
     static bool init();
     void moveDown();
     Color getColor() { return color; }
+    bool isActive() { return !destroyed; }
     friend class AlienRow;  // Allow AlienRow to access private and protected memebers
 
 };
@@ -116,6 +118,8 @@ class AlienRow {
   public:
     AlienRow(Rank position);
     ~AlienRow() = default;
+    
+    bool checkCollisions(const AnimatedSprite& playerSprite);
 
     friend std::ostream& operator<<(std::ostream& out, const AlienRow& row);
 

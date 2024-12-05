@@ -12,6 +12,7 @@ CSC222-301W  | Fall 2024
 	-  This should already be configured if opening the .cbp project file, however if issues occur please ensure this is checked.
 
 **Game Instructions:**
+
 The game is similar to "Space Invaders": your ship is under attack and you must defend it from the invading aliens!
 
 The player controls a ship and can move left and right with the respective ARROW KEYS. Bullets can be fired upward towards the invading aliens by pressing the SPACE KEY.

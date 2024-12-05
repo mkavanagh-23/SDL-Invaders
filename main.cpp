@@ -1,3 +1,4 @@
+#include <SDL2/SDL_render.h>
 #include <SDL2/SDL_video.h>
 #include <cstdio>
 #include <cstdlib>
@@ -37,6 +38,7 @@ bool newRound = false;   // Do we need to set up the next round?
 bool playGame = false;  // Menu state variable
 bool startRound = false; // Start the next round
 bool menuDeleted = false;   // Did we delete the menu object?
+bool playerWin = false;
 
 // Declare Global game objects
 Background* background = NULL;
@@ -45,6 +47,8 @@ AnimatedSprite* logo = NULL;
 AnimatedSprite* roundOne = NULL;
 AnimatedSprite* roundTwo = NULL;
 AnimatedSprite* roundThree = NULL;
+AnimatedSprite* winLogo = NULL;
+AnimatedSprite* loseLogo = NULL;
 AnimatedSprite* start = NULL;
 AnimatedSprite* player = NULL;
 AlienRow* topRow = NULL;    // Alien Rows hold 10 alien sprites
@@ -69,6 +73,7 @@ namespace game {
   void nextRound();
   void setMenu(int round);
   void displayMenu(const Uint8* pressedKeys);   // Display a start menu
+  void displayEnd(); 
 }
 
 /************************* MAIN GAME FUNCTION ***************************/
@@ -150,6 +155,7 @@ int main(int argc, char* argv[]) {
         // Check if player loses
         if(playerLives <= 0) {
           std::cout << "Player loses\n";
+          playerWin = false;
           break;
         }
         // Check if all enemies are destoryed
@@ -157,6 +163,7 @@ int main(int argc, char* argv[]) {
           // Check if player won
           if(currentRound == MAX_ROUNDS) {
             std::cout << "Player wins!\n";
+            playerWin = true;
             break;
           }
           newRound = true;
@@ -187,6 +194,13 @@ bool game::init() {
 }
 
 void game::end() {
+  if(playerWin) {
+    logo = winLogo;
+  }
+  else {
+    logo = loseLogo;
+  }
+  game::displayEnd();
   destroyObjects();
   SDL::CloseShop();
 }
@@ -198,6 +212,8 @@ void createObjects() {
   roundOne = new AnimatedSprite("graphics/roundone.bmp", 1, 0, "#000000");
   roundTwo = new AnimatedSprite("graphics/roundtwo.bmp", 1, 0, "#000000");
   roundThree = new AnimatedSprite("graphics/roundthree.bmp", 1, 0, "#000000");
+  winLogo = new AnimatedSprite("graphics/win.bmp", 1, 0, "#000000");
+  loseLogo = new AnimatedSprite("graphics/lose.bmp", 1, 0, "#000000");
   start = new AnimatedSprite("graphics/start.bmp", 2, 50, "#000000");
   player = new AnimatedSprite("graphics/sprite.bmp", 16, 2, "#000000");
   bullets = new Bullets();
@@ -212,6 +228,10 @@ void createObjects() {
   roundTwo->update();
   roundThree->setLocation({ (settings::SCREEN_WIDTH - roundThree->getWidth()) / 2, -30 });
   roundThree->update();
+  winLogo->setLocation({ (settings::SCREEN_WIDTH - winLogo->getWidth()) / 2, -30 });
+  winLogo->update();
+  loseLogo->setLocation({ (settings::SCREEN_WIDTH - loseLogo->getWidth()) / 2, -30 });
+  loseLogo->update();
   start->setLocation({(settings::SCREEN_WIDTH - start->getWidth()) / 2, settings::SCREEN_HEIGHT - (2 * player->getHeight() + 30)});
   start->update();
   player->setSpeed(5);
@@ -230,6 +250,11 @@ void destroyObjects() {
   delete background;
   delete tilemap;
   delete start;
+  delete logo;
+  if(playerWin)
+    delete loseLogo;
+  else
+    delete winLogo;
   delete player;
   delete bullets;
 
@@ -237,6 +262,9 @@ void destroyObjects() {
   background = NULL;
   tilemap = NULL;
   start = NULL;
+  logo = NULL;
+  winLogo = NULL;
+  loseLogo = NULL;
   player = NULL;
   bullets = NULL;
 }
@@ -299,6 +327,10 @@ void game::setMenu(int round) {
     case 3:
       logo = roundThree;
       break;
+    case 4:
+      logo = winLogo;
+    case 5:
+      logo = loseLogo;
     default:
       logo = NULL;
       break;  
@@ -337,6 +369,22 @@ void game::displayMenu(const Uint8* pressedKeys) {
     logo = NULL;
   }
   SDL_Delay(20);
+}
+
+void game::displayEnd() {
+  int count = 0;
+  while(count < 500) {
+    player->nextFrame();
+    player->update();
+    background->scroll();
+    SDL_RenderClear(SDL::renderer);
+    background->draw();
+    logo->draw();
+    player->draw();
+    SDL_RenderPresent(SDL::renderer);
+    count++;
+    SDL_Delay(20);
+  }
 }
 
 void game::nextRound() {

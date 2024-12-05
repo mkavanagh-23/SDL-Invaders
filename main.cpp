@@ -383,6 +383,7 @@ void game::displayEnd() {
   int count = 0;
   while(count < 200) {
     player->nextFrame();
+    player->setLocation({ (settings::SCREEN_WIDTH - player->getWidth()) / 2, (settings::SCREEN_HEIGHT - player->getHeight()) - 10 });
     player->update();
     background->scroll();
     SDL_RenderClear(SDL::renderer);

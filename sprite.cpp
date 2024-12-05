@@ -333,27 +333,29 @@ bool Bullets::checkCollisions(AlienRow& alienRow){
     for(int i = 0; i < MAX_ACTIVE; ++i) { // For each bullet
       if(armory[i].isActive()) {  // If the bullet is currently active
         for(int j = 0; j < alienRow.SIZE; j++) {   // For each alien in the row
-          if(checkCollision(armory[i], alienRow.aliens[j])) {  // If the alien and bullet collide
-            std::cout << "Collision between bullet #" << i + 1 << " and a " << static_cast<int>(alienRow.aliens[j].getColor()) << " ufo.\n";
-            // Destory the alien
-            alienRow.aliens[j].destroy();
-            // Set the bullet as not active
-            armory[i].active = false;
-            // Check if row is empty
-            bool empty = true;
-            for(int k = 0; k < alienRow.SIZE; ++k) {
-              if(alienRow.aliens[k].isActive()) {   // If an object is found to be active
-                empty = false;  // Set the empty flag to false
+          if(alienRow.aliens[j].isActive()) {   // If the alien is active
+            if(checkCollision(armory[i], alienRow.aliens[j])) {  // If the alien and bullet collide
+              std::cout << "Collision between bullet # and a " << static_cast<int>(alienRow.aliens[j].getColor()) << " ufo.\n";
+              // Destory the alien
+              alienRow.aliens[j].destroy();
+              // Set the bullet as not active
+              armory[i].active = false;
+              // Check if row is empty
+              bool empty = true;
+              for(int k = 0; k < alienRow.SIZE; ++k) {
+                if(alienRow.aliens[k].isActive()) {   // If an object is found to be active
+                  empty = false;  // Set the empty flag to false
+                }
               }
-            }
-            if(empty)   // If the row is empty
-              alienRow.empty = true;    // Set the member to true
+              if(empty)   // If the row is empty
+                alienRow.empty = true;    // Set the member to true
 
-            playerScore++;
+              playerScore++;
             
-            // return true, we don't need to check any further
-            return true;
-            // increment the score
+              // return true, we don't need to check any further
+              return true;
+              // increment the score
+            }
           }
         }
       }

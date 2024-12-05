@@ -25,10 +25,6 @@ void Background::scroll() {
   rect.y = yOffset; //And store the new value in the render rectangle
 }
 
-void Background::speedUp(int speedIncrease) {
-  scrollSpeed += speedIncrease;
-}
-
 // Draw the background to the render
 void Background::draw() {
   SDL_RenderCopy(SDL::renderer, texture, NULL, &rect); // Copy the image to the render

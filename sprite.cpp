@@ -2,6 +2,7 @@
 #include "settings.h"
 #include "engine.h"
 #include "types.h"
+#include <cstdlib>
 #include <string>
 #include <SDL2/SDL.h>
 #include <cassert>
@@ -186,6 +187,23 @@ void AlienRow::resetLocation() {
   }
 }
 
+void AlienRow::resetRound(int round) {
+  // Mark the row as not empty
+  empty = false;
+  // Reset alien locations
+  resetLocation();
+  for(int i = 0; i < SIZE; ++i) {   // For each alien
+    aliens[i].setSpeed(round);
+    aliens[i].destroyed = false;
+
+    //Randomize color
+    aliens[i].color = Alien::Color(std::rand() % int(Alien::Color::MAX_COLORS));
+    aliens[i].spriteFrame = std::rand() % aliens[i].MAX_SPRITE_FRAME;
+    SDL::FillRect(aliens[i].rectSource, (aliens[i].spriteFrame * aliens[i].width), int(aliens[i].color) * aliens[i].height, aliens[i].width, aliens[i].height);
+  }
+
+}
+
 void AlienRow::moveDown() {
   for(int i = 0; i < SIZE; ++i) {
     aliens[i].moveDown();
@@ -346,8 +364,7 @@ bool Bullets::checkCollisions(AlienRow& alienRow){
                   empty = false;  // Set the empty flag to false
                 }
               }
-              if(empty)   // If the row is empty
-                alienRow.empty = true;    // Set the member to true
+              alienRow.empty = empty;    // Set the member to true
 
               playerScore++;
             

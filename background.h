@@ -7,11 +7,12 @@
 
 // Background object
 class Background {
+  public:
+    int scrollSpeed = 3;  // Speed at which BG scrolls in pixels
   private:
     SDL_Texture* texture = NULL; // Hold the background texture
     SDL_Rect rect;  // Render rectangle
     int yOffset = 0;  // Current y-offset for calculating scroll
-    int scrollSpeed = 3;  // Speed at which BG scrolls in pixels
     const std::string PATH; // Path to bitMap image
 
   public:
@@ -23,7 +24,6 @@ class Background {
 
   public:
     void scroll();  // Scroll the background by one tick
-    void speedUp(int speedIncrease);    // Increase the background scroll speed
     void draw();  // Draw the background to the render
 };
 

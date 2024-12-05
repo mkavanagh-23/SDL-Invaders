@@ -126,6 +126,7 @@ class AlienRow {
 
   public:
     void resetLocation();
+    void resetRound(int round);
     void moveDown();
     void update();
     void draw();

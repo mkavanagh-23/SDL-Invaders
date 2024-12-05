@@ -31,8 +31,9 @@
 // Global Game Variables
 int playerScore = 0;    // Player's score
 int playerLives = 3;    // Player's lives
-//int currentRound = 1;
-//bool newRound = false;   // Are we at the start of a new round?
+int currentRound = 1;
+const int MAX_ROUNDS = 3;
+bool newRound = false;   // Are we at the start of a new round?
 bool playGame = false;  // Menu state variable
 
 // Declare Global game objects
@@ -60,7 +61,7 @@ namespace game {
   void end();   // Destory game objects and end game
   void update();    // Update the state of each object
   void draw();  // Draw each object to the render
-//  void nextRound();
+  void nextRound();
   void displayMenu(const Uint8* pressedKeys);   // Display a start menu
 }
 
@@ -98,13 +99,17 @@ int main(int argc, char* argv[]) {
     // Display a menu until the player quits or selects 'START' (Space Key)
     if(!playGame) {
       game::displayMenu(keys);
+      //if(playGame) {
+      //  game::setMenu(1);
+      //  game::displayMenu(keys);
+      //}
     }
     
     // Play the game 
     else {
       // Check for new round
-      //if(newRound)
-      //  game::nextRound();
+      if(newRound)
+        game::nextRound();
       
       // Check for Space key press
       // If pressed, fire a bullet from the player sprite
@@ -132,8 +137,20 @@ int main(int argc, char* argv[]) {
       }
       
       // CHECK FOR WIN/LOSS
-      // CHECK FOR ALL ENEMIES DESTROYED
-
+      // Check if player loses
+      if(playerLives <= 0) {
+        std::cout << "Player loses\n";
+        break;
+      }
+      // Check if all enemies are destoryed
+      if(topRow->isEmpty() && upperRow->isEmpty() && lowerRow->isEmpty() && bottomRow->isEmpty()) {
+        // Check if player won
+        if(currentRound == MAX_ROUNDS) {
+          std::cout << "Player wins!\n";
+          break;
+        }
+        newRound = true;
+      }
     }
   }
 
@@ -275,31 +292,21 @@ void game::displayMenu(const Uint8* pressedKeys) {
   SDL_Delay(20);
 }
 
-// void game::nextRound() {
-//   // Increment round counter and reset newRound flag
-//   currentRound++;
-//   newRound = false;
-// 
-//   // Set alien speed for current round
-//   int alienSpeed;
-//   switch (currentRound) {
-//     case 1:
-//       alienSpeed = 2;
-//     case 2:
-//       alienSpeed = 3;
-//     case 3:
-//       alienSpeed = 4;
-//     default:
-//       alienSpeed = 1;
-//   }
-// 
-//   // Delete alien rows
-//   deleteAliens();
-//   // And regenerate new ones
-//   createAliens();
-//   
-//   // Reset player position
-//   player->setLocation({ (settings::SCREEN_WIDTH - player->getWidth()) / 2, (settings::SCREEN_HEIGHT - player->getHeight()) - 10 });
-// 
-//   // Wait before starting round
-// }
+void game::nextRound() {
+  // Increment round counter and reset newRound flag
+  currentRound++;
+  newRound = false;
+
+  //Increse BG speed
+  background->scrollSpeed += 2;
+
+  //Reset alien location, state, etc
+  topRow->resetRound(currentRound);
+  upperRow->resetRound(currentRound);
+  lowerRow->resetRound(currentRound);
+  bottomRow->resetRound(currentRound);
+
+
+  // Reset player position
+  player->setLocation({ (settings::SCREEN_WIDTH - player->getWidth()) / 2, (settings::SCREEN_HEIGHT - player->getHeight()) - 10 });
+}

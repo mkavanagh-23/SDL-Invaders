@@ -1,3 +1,5 @@
+#include <SDL2/SDL_video.h>
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <cassert>
@@ -113,26 +115,25 @@ int main(int argc, char* argv[]) {
       
       // Update state of all game objects before drawing
       game::update();
-      SDL_RenderClear(SDL::renderer);
       
       // Draw all active objects to the render
       game::draw();
-      SDL_RenderPresent(SDL::renderer);
 
       // CHECK COLLISIONS!!
       bullets->checkCollisions(*bottomRow);
       bullets->checkCollisions(*lowerRow);
       bullets->checkCollisions(*upperRow);
       bullets->checkCollisions(*topRow);
-      bottomRow->checkCollisions(*player);
-      lowerRow->checkCollisions(*player);
-      upperRow->checkCollisions(*player);
-      topRow->checkCollisions(*player);
+      if(bottomRow->checkCollisions(*player) || lowerRow->checkCollisions(*player) || upperRow->checkCollisions(*player) || topRow->checkCollisions(*player)) {
+        topRow->resetLocation();
+        upperRow->resetLocation();
+        lowerRow->resetLocation();
+        bottomRow->resetLocation();
+      }
       
       // CHECK FOR WIN/LOSS
       // CHECK FOR ALL ENEMIES DESTROYED
 
-      SDL_Delay(20);
     }
   }
 
@@ -232,6 +233,13 @@ void game::update() {
 }
 
 void game::draw() {
+    // Set the window title
+    char title[64];
+
+    std::sprintf(title, "Player Score: %d    |    Lives Remaining: %d", playerScore, playerLives);
+    SDL_SetWindowTitle(SDL::gameWindow, title);
+    
+    SDL_RenderClear(SDL::renderer);
     background->draw();
     tilemap->draw();
     player->draw();
@@ -240,6 +248,8 @@ void game::draw() {
     lowerRow->draw();
     bottomRow->draw();
     bullets->draw();
+    SDL_RenderPresent(SDL::renderer);
+    SDL_Delay(20);
 }
 
 /*********** NEEDS HEADER *************/

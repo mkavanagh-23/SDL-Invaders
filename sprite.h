@@ -24,7 +24,7 @@ class AnimatedSprite {
     const int MAX_SPRITE_FRAME = 1; // Number of animation frames
     const int FRAME_DELAY = 5;  // How many frames to delay rendering
     Direction movementDir;
-    int SPEED = 1;
+    int SPEED = 2;
 
     //Attribute variables
     int width = 0;    // Width of a single sprite

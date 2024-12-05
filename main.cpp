@@ -145,10 +145,10 @@ int main(int argc, char* argv[]) {
         bullets->checkCollisions(*lowerRow);
         bullets->checkCollisions(*upperRow);
         bullets->checkCollisions(*topRow);
-        bottomRow->checkExplode();
-        lowerRow->checkExplode();
-        upperRow->checkExplode();
-        topRow->checkExplode();
+        //bottomRow->checkExplode();
+        //lowerRow->checkExplode();
+        //upperRow->checkExplode();
+        //topRow->checkExplode();
         if(bottomRow->checkCollisions(*player) || lowerRow->checkCollisions(*player) || upperRow->checkCollisions(*player) || topRow->checkCollisions(*player)) {
           topRow->resetLocation();
           upperRow->resetLocation();

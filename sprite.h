@@ -31,8 +31,8 @@ class AnimatedSprite {
     int height = 0;   // Height of a single sprite
     Point2d position = { 0, 0 };  // Current sprite location
     RGB transparency; // Sprite transparency color
-    bool isDestroyed = false; // Sprite destruction state
-    bool isExploded = false;  // Sprite explosion state 
+    //bool isDestroyed = false; // Sprite destruction state
+    //bool isExploded = false;  // Sprite explosion state 
 
   public:
     AnimatedSprite(std::string filePath, int frames, int frameDelay, const RGB& transparencyColor);
@@ -85,7 +85,7 @@ class Alien : public AnimatedSprite {
 
     Color color;
     bool destroyed = false;
-    bool exploded = false;
+    //bool exploded = false;
   
   public:
     Alien(int speed);
@@ -132,7 +132,7 @@ class AlienRow {
     void update();
     void draw();
     bool isEmpty() { return empty; }
-    void checkExplode();
+    //void checkExplode();
 
     friend class Bullets;   // Allow bullets to access members so we can determine collisions
 

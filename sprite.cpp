@@ -196,7 +196,7 @@ void AlienRow::resetRound(int round) {
   for(int i = 0; i < SIZE; ++i) {   // For each alien
     aliens[i].setSpeed(round);
     aliens[i].destroyed = false;
-    aliens[i].exploded = false;
+    //aliens[i].exploded = false;
 
     //Randomize color
     aliens[i].color = Alien::Color(std::rand() % int(Alien::Color::MAX_COLORS));
@@ -253,14 +253,14 @@ bool AlienRow::checkCollisions(const AnimatedSprite& playerSprite){
   return false;
 }
 
-void AlienRow::checkExplode() {
-  for(int i = 0; i < SIZE; ++i) {
-    if(aliens[i].destroyed && !(aliens[i].exploded)) {
-      explode(aliens[i].getLocation(), 10);
-      aliens[i].exploded = true;
-    }
-  }
-}
+//void AlienRow::checkExplode() {
+//  for(int i = 0; i < SIZE; ++i) {
+//    if(aliens[i].destroyed && !(aliens[i].exploded)) {
+//      explode(aliens[i].getLocation(), 10);
+//      aliens[i].exploded = true;
+//    }
+//  }
+//}
 
 Bullet::Bullet() 
   : AnimatedSprite(bulletSheetPath, 1, 0, 15)
@@ -364,6 +364,7 @@ bool Bullets::checkCollisions(AlienRow& alienRow){
             if(checkCollision(armory[i], alienRow.aliens[j])) {  // If the alien and bullet collide
               // Destory the alien
               alienRow.aliens[j].destroy();
+              explode(alienRow.aliens[j].getLocation(), 10);
               // Set the bullet as not active
               armory[i].active = false;
               // Check if row is empty
@@ -403,9 +404,7 @@ std::ostream& operator<<(std::ostream& out, const AnimatedSprite& sprite) {
     << "  Placement: " << static_cast<int>(sprite.rectPlacement.x) << ", " << static_cast<int>(sprite.rectPlacement.y) << ", " << static_cast<int>(sprite.rectPlacement.w) << ", " << static_cast<int>(sprite.rectPlacement.h) << '\n'
     << "Animation:\n"
     << "  Current Frame: " << sprite.spriteFrame + 1 << " / " << sprite.MAX_SPRITE_FRAME << '\n'
-    << "  Delay: " << sprite.frameCounter << " / " << sprite.FRAME_DELAY << '\n'
-    << "Explosion Animation State: " << sprite.isExploded << '\n'
-    << "Destroyed State: " << sprite.isDestroyed;
+    << "  Delay: " << sprite.frameCounter << " / " << sprite.FRAME_DELAY << '\n';
 
   return out;
 }

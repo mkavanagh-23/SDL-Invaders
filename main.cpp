@@ -50,7 +50,7 @@ Bullets* bullets = NULL;    // Bullets holds 5 bullets to rotate through
 // Function Prototypes
 // Game state functions
 void createObjects();   // Instantiate game objects and set initial states
-void createAliens();
+void createAliens(int speed);
 void destroyObjects();  // Free memory associated with instantiated objects and nullify pointers
 void deleteAliens();
 
@@ -170,7 +170,7 @@ void createObjects() {
   start = new AnimatedSprite("graphics/start.bmp", 2, 50, "#000000");
   player = new AnimatedSprite("graphics/sprite.bmp", 16, 2, "#000000");
   bullets = new Bullets();
-  createAliens();
+  createAliens(1);
 
   // Set object state
   logo->setLocation({ (settings::SCREEN_WIDTH - logo->getWidth()) / 2, -30 });
@@ -180,11 +180,11 @@ void createObjects() {
   player->setSpeed(5);
 }
 
-void createAliens() {
-  topRow = new AlienRow(Rank::first);
-  upperRow = new AlienRow(Rank::second);
-  lowerRow = new AlienRow(Rank::third);
-  bottomRow = new AlienRow(Rank::fourth);
+void createAliens(int speed) {
+  topRow = new AlienRow(Rank::first, speed);
+  upperRow = new AlienRow(Rank::second, speed);
+  lowerRow = new AlienRow(Rank::third, speed);
+  bottomRow = new AlienRow(Rank::fourth, speed);
 }
 
 void destroyObjects() {

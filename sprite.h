@@ -24,7 +24,7 @@ class AnimatedSprite {
     const int MAX_SPRITE_FRAME = 1; // Number of animation frames
     const int FRAME_DELAY = 5;  // How many frames to delay rendering
     Direction movementDir;
-    int SPEED = 2;
+    int SPEED = 1;
 
     //Attribute variables
     int width = 0;    // Width of a single sprite
@@ -42,7 +42,7 @@ class AnimatedSprite {
     friend std::ostream& operator<<(std::ostream& out, const AnimatedSprite& sprite);
 
   protected:
-    AnimatedSprite(std::string filePath, int frames, int frameDelay);    // Helper constructor for child classes, ensure static member initialization
+    AnimatedSprite(std::string filePath, int frames, int frameDelay, int speed);    // Helper constructor for child classes, ensure static member initialization
   
   public:
     int getWidth() const { return width; }    // Get the sprite width
@@ -87,7 +87,7 @@ class Alien : public AnimatedSprite {
     bool destroyed = false;
   
   public:
-    Alien();
+    Alien(int speed);
     ~Alien() = default;
 
     friend std::ostream& operator<<(std::ostream& out, const Alien& alien);
@@ -117,7 +117,7 @@ class AlienRow {
     Direction xDir;
 
   public:
-    AlienRow(Rank position);
+    AlienRow(Rank position, int speed);
     ~AlienRow() = default;
     
     bool checkCollisions(const AnimatedSprite& playerSprite);

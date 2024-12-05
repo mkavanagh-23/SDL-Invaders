@@ -43,8 +43,8 @@ AnimatedSprite::AnimatedSprite(std::string filePath, int frames, int frameDelay,
   : AnimatedSprite(filePath, frames, frameDelay, hexToRGB(transparencyHex))
 {}   // Convert the hex value to an RGB object and call the constructor as normal
 
-AnimatedSprite::AnimatedSprite(std::string filePath, int frames, int frameDelay)  // Protected helper constructor for alien sprites
-  : PATH{ filePath }, MAX_SPRITE_FRAME{ frames }, FRAME_DELAY{ frameDelay }  // Sets const instance data members, the rest is handled by child constructor
+AnimatedSprite::AnimatedSprite(std::string filePath, int frames, int frameDelay, int speed)  // Protected helper constructor for alien sprites
+  : PATH{ filePath }, MAX_SPRITE_FRAME{ frames }, FRAME_DELAY{ frameDelay }, SPEED{ speed }  // Sets const instance data members, the rest is handled by child constructor
 {
   // Ensure static members have been initialized before constructing object
   assert((SDL::static_init == true) && "Fatal Error: Tried to create sprite object before initializing static members.");
@@ -106,8 +106,8 @@ void AnimatedSprite::update() {
 }
 
 /*** Alien Functions ***/
-Alien::Alien()
-  : AnimatedSprite(alienSheetPath, 2, std::rand() % 50 + 30)
+Alien::Alien( int speed )
+  : AnimatedSprite(alienSheetPath, 2, std::rand() % 50 + 30, speed)
 {
   transparency = hexToRGB(alienTransparency); // Set the transparency member variable
   textureSheet = alienTextureSheet; // Set the texture pointer to point at the alienTextureSheet
@@ -150,18 +150,18 @@ void Alien::destroy() {
 }
 
 
-AlienRow::AlienRow(Rank position)
+AlienRow::AlienRow(Rank position, int speed)
   : aliens{
-      Alien(),
-      Alien(),
-      Alien(),
-      Alien(),
-      Alien(),
-      Alien(),
-      Alien(),
-      Alien(),
-      Alien(),
-      Alien()
+      Alien(speed),
+      Alien(speed),
+      Alien(speed),
+      Alien(speed),
+      Alien(speed),
+      Alien(speed),
+      Alien(speed),
+      Alien(speed),
+      Alien(speed),
+      Alien(speed)
     },
     RANK{position}
 {
@@ -234,7 +234,7 @@ bool AlienRow::checkCollisions(const AnimatedSprite& playerSprite){
 }
 
 Bullet::Bullet() 
-  : AnimatedSprite(bulletSheetPath, 1, 0)
+  : AnimatedSprite(bulletSheetPath, 1, 0, 15)
 {
   transparency = hexToRGB(bulletTransparency); // Set the transparency member variable
   textureSheet = bulletTextureSheet; // Set the texture pointer to point at the alienTextureSheet
@@ -245,7 +245,6 @@ Bullet::Bullet()
   int sourceX = 0;
   int sourceY = 0;
   setLocation({-100, -100});
-  setSpeed(15);
   active = false;
   // And fill the source and dest rectangles
   SDL::FillRect(rectSource, sourceX, sourceY, width, height);

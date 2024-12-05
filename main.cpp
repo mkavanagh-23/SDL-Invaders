@@ -33,13 +33,18 @@ int playerScore = 0;    // Player's score
 int playerLives = 3;    // Player's lives
 int currentRound = 1;
 const int MAX_ROUNDS = 3;
-bool newRound = false;   // Are we at the start of a new round?
+bool newRound = false;   // Do we need to set up the next round?
 bool playGame = false;  // Menu state variable
+bool startRound = false; // Start the next round
+bool menuDeleted = false;   // Did we delete the menu object?
 
 // Declare Global game objects
 Background* background = NULL;
 Tilemap* tilemap = NULL;
 AnimatedSprite* logo = NULL;
+AnimatedSprite* roundOne = NULL;
+AnimatedSprite* roundTwo = NULL;
+AnimatedSprite* roundThree = NULL;
 AnimatedSprite* start = NULL;
 AnimatedSprite* player = NULL;
 AlienRow* topRow = NULL;    // Alien Rows hold 10 alien sprites
@@ -62,6 +67,7 @@ namespace game {
   void update();    // Update the state of each object
   void draw();  // Draw each object to the render
   void nextRound();
+  void setMenu(int round);
   void displayMenu(const Uint8* pressedKeys);   // Display a start menu
 }
 
@@ -99,10 +105,6 @@ int main(int argc, char* argv[]) {
     // Display a menu until the player quits or selects 'START' (Space Key)
     if(!playGame) {
       game::displayMenu(keys);
-      //if(playGame) {
-      //  game::setMenu(1);
-      //  game::displayMenu(keys);
-      //}
     }
     
     // Play the game 
@@ -110,46 +112,55 @@ int main(int argc, char* argv[]) {
       // Check for new round
       if(newRound)
         game::nextRound();
-      
-      // Check for Space key press
-      // If pressed, fire a bullet from the player sprite
-      bulletTimer++;        // Increment the bullet timer to see if we can fire this tick
-      if(keys[SDL_SCANCODE_SPACE]) {
-        bullets->fire(*player);
-      }
-      
-      // Update state of all game objects before drawing
-      game::update();
-      
-      // Draw all active objects to the render
-      game::draw();
 
-      // CHECK COLLISIONS!!
-      bullets->checkCollisions(*bottomRow);
-      bullets->checkCollisions(*lowerRow);
-      bullets->checkCollisions(*upperRow);
-      bullets->checkCollisions(*topRow);
-      if(bottomRow->checkCollisions(*player) || lowerRow->checkCollisions(*player) || upperRow->checkCollisions(*player) || topRow->checkCollisions(*player)) {
-        topRow->resetLocation();
-        upperRow->resetLocation();
-        lowerRow->resetLocation();
-        bottomRow->resetLocation();
+      if(!startRound) {
+        // Point the logo pointer to the current round
+        game::setMenu(currentRound);
+        // And display the menu
+        game::displayMenu(keys);
       }
-      
-      // CHECK FOR WIN/LOSS
-      // Check if player loses
-      if(playerLives <= 0) {
-        std::cout << "Player loses\n";
-        break;
-      }
-      // Check if all enemies are destoryed
-      if(topRow->isEmpty() && upperRow->isEmpty() && lowerRow->isEmpty() && bottomRow->isEmpty()) {
-        // Check if player won
-        if(currentRound == MAX_ROUNDS) {
-          std::cout << "Player wins!\n";
+      else {
+        
+        // Check for Space key press
+        // If pressed, fire a bullet from the player sprite
+        bulletTimer++;        // Increment the bullet timer to see if we can fire this tick
+        if(keys[SDL_SCANCODE_SPACE]) {
+          bullets->fire(*player);
+        }
+        
+        // Update state of all game objects before drawing
+        game::update();
+        
+        // Draw all active objects to the render
+        game::draw();
+
+        // CHECK COLLISIONS!!
+        bullets->checkCollisions(*bottomRow);
+        bullets->checkCollisions(*lowerRow);
+        bullets->checkCollisions(*upperRow);
+        bullets->checkCollisions(*topRow);
+        if(bottomRow->checkCollisions(*player) || lowerRow->checkCollisions(*player) || upperRow->checkCollisions(*player) || topRow->checkCollisions(*player)) {
+          topRow->resetLocation();
+          upperRow->resetLocation();
+          lowerRow->resetLocation();
+          bottomRow->resetLocation();
+        }
+        
+        // CHECK FOR WIN/LOSS
+        // Check if player loses
+        if(playerLives <= 0) {
+          std::cout << "Player loses\n";
           break;
         }
-        newRound = true;
+        // Check if all enemies are destoryed
+        if(topRow->isEmpty() && upperRow->isEmpty() && lowerRow->isEmpty() && bottomRow->isEmpty()) {
+          // Check if player won
+          if(currentRound == MAX_ROUNDS) {
+            std::cout << "Player wins!\n";
+            break;
+          }
+          newRound = true;
+        }
       }
     }
   }
@@ -184,6 +195,9 @@ void createObjects() {
   background = new Background("graphics/bg.bmp");
   tilemap = new Tilemap("graphics/tilemap.bmp");
   logo = new AnimatedSprite("graphics/logo.bmp", 1, 0, "#000000");
+  roundOne = new AnimatedSprite("graphics/roundone.bmp", 1, 0, "#000000");
+  roundTwo = new AnimatedSprite("graphics/roundtwo.bmp", 1, 0, "#000000");
+  roundThree = new AnimatedSprite("graphics/roundthree.bmp", 1, 0, "#000000");
   start = new AnimatedSprite("graphics/start.bmp", 2, 50, "#000000");
   player = new AnimatedSprite("graphics/sprite.bmp", 16, 2, "#000000");
   bullets = new Bullets();
@@ -192,6 +206,12 @@ void createObjects() {
   // Set object state
   logo->setLocation({ (settings::SCREEN_WIDTH - logo->getWidth()) / 2, -30 });
   logo->update();
+  roundOne->setLocation({ (settings::SCREEN_WIDTH - roundOne->getWidth()) / 2, -30 });
+  roundOne->update();
+  roundTwo->setLocation({ (settings::SCREEN_WIDTH - roundTwo->getWidth()) / 2, -30 });
+  roundTwo->update();
+  roundThree->setLocation({ (settings::SCREEN_WIDTH - roundThree->getWidth()) / 2, -30 });
+  roundThree->update();
   start->setLocation({(settings::SCREEN_WIDTH - start->getWidth()) / 2, settings::SCREEN_HEIGHT - (2 * player->getHeight() + 30)});
   start->update();
   player->setSpeed(5);
@@ -209,7 +229,6 @@ void destroyObjects() {
   // Delete each object
   delete background;
   delete tilemap;
-  delete logo;
   delete start;
   delete player;
   delete bullets;
@@ -217,7 +236,6 @@ void destroyObjects() {
   // Reset pointers to prevent undefined behavior
   background = NULL;
   tilemap = NULL;
-  logo = NULL;
   start = NULL;
   player = NULL;
   bullets = NULL;
@@ -269,14 +287,38 @@ void game::draw() {
     SDL_Delay(20);
 }
 
+void game::setMenu(int round) {
+  // set logo to point to the proper texture
+  switch (round) {
+    case 1:
+      logo = roundOne;
+      break;
+    case 2:
+      logo = roundTwo;
+      break;
+    case 3:
+      logo = roundThree;
+      break;
+    default:
+      logo = NULL;
+      break;  
+  }
+}
+
 /*********** NEEDS HEADER *************/
 void game::displayMenu(const Uint8* pressedKeys) {
+  bool end = false;
   // Check if player presses start
   if(pressedKeys[SDL_SCANCODE_SPACE]) {
-    playGame = true;
+    if(playGame)    // Check if we are entering before game start or before round start
+      startRound = true;
+    else
+      playGame = true;
+
     SDL_Delay(200);
     // Reset player position
     player->setLocation({ (settings::SCREEN_WIDTH - player->getWidth()) / 2, (settings::SCREEN_HEIGHT - player->getHeight()) - 10 });
+    end = true;
   }
 
   player->nextFrame();
@@ -289,6 +331,11 @@ void game::displayMenu(const Uint8* pressedKeys) {
   start->draw();
   player->draw();
   SDL_RenderPresent(SDL::renderer);
+  if(end) { // Check if we are exiting the function loop
+    // Free up logo memory and assign ptr to NULL
+    delete logo;
+    logo = NULL;
+  }
   SDL_Delay(20);
 }
 
@@ -296,6 +343,7 @@ void game::nextRound() {
   // Increment round counter and reset newRound flag
   currentRound++;
   newRound = false;
+  startRound = false;
 
   //Increse BG speed
   background->scrollSpeed += 2;

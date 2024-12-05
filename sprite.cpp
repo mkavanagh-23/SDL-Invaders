@@ -239,7 +239,6 @@ bool AlienRow::checkCollisions(const AnimatedSprite& playerSprite){
     for(int i = 0; i < SIZE; ++i) {   // For each alien in the row
       if(aliens[i].isActive()) {    // If the alien is active
         if(checkCollision(aliens[i], playerSprite) || (aliens[i].getLocation().y + aliens[i].getHeight()) >= 25*32) { // If the player collides with the sprite or sprite reaches the player base
-          std::cout << "Alien collided with player, lose a life.\n";
           playerLives--;    // Decrement player life
           // Reset positioning
           // Return true, we don't need to check any further
@@ -325,7 +324,6 @@ void Bullets::fire(const AnimatedSprite& player) {
       bulletCounter = 0;
     }
     bulletTimer = 0;
-    std::cout << "Firing bullet #" << bulletCounter + 1 << '\n';
   }
 }
 
@@ -352,7 +350,6 @@ bool Bullets::checkCollisions(AlienRow& alienRow){
         for(int j = 0; j < alienRow.SIZE; j++) {   // For each alien in the row
           if(alienRow.aliens[j].isActive()) {   // If the alien is active
             if(checkCollision(armory[i], alienRow.aliens[j])) {  // If the alien and bullet collide
-              std::cout << "Collision between bullet # and a " << static_cast<int>(alienRow.aliens[j].getColor()) << " ufo.\n";
               // Destory the alien
               alienRow.aliens[j].destroy();
               // Set the bullet as not active

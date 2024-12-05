@@ -373,7 +373,7 @@ void game::displayMenu(const Uint8* pressedKeys) {
 
 void game::displayEnd() {
   int count = 0;
-  while(count < 500) {
+  while(count < 200) {
     player->nextFrame();
     player->update();
     background->scroll();

@@ -57,6 +57,8 @@ class AnimatedSprite {
     void update();
 };
 
+bool checkCollision(const AnimatedSprite& sprite1, const AnimatedSprite& sprite2);
+
 // Alien object
 // Derives from AnimatedSprite parent
 
@@ -92,6 +94,7 @@ class Alien : public AnimatedSprite {
   public:
     static bool init();
     void moveDown();
+    Color getColor() { return color; }
     friend class AlienRow;  // Allow AlienRow to access private and protected memebers
 
 };
@@ -106,7 +109,7 @@ class AlienRow {
     Alien aliens[10];
     Rank RANK;
 
-    bool isEmpty = false;
+    bool empty = false;
     int yCollision;
     Direction xDir;
 
@@ -121,6 +124,9 @@ class AlienRow {
     void moveDown();
     void update();
     void draw();
+    bool isEmpty() { return empty; }
+
+    friend class Bullets;   // Allow bullets to access members so we can determine collisions
 
 };
 
@@ -163,6 +169,7 @@ struct Bullets {
     void update();
     void draw();
     void fire(const AnimatedSprite& player);
+    bool checkCollisions(AlienRow& topRow, AlienRow& upperRow, AlienRow& lowerRow, AlienRow& bottomRow);
 
 };
 

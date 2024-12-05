@@ -63,7 +63,7 @@ namespace game {
 }
 
 /************************* MAIN GAME FUNCTION ***************************/
-int main() {
+int main(int argc, char* argv[]) {
   
   // Initialize libraries and static data members
   // Check for successful initialization, exit if it failed
@@ -120,6 +120,7 @@ int main() {
       SDL_RenderPresent(SDL::renderer);
 
       // CHECK COLLISIONS!!
+      bullets->checkCollisions(*topRow, *upperRow, *lowerRow, *bottomRow);
       // CHECK FOR WIN/LOSS
       // CHECK FOR ALL ENEMIES DESTROYED
 

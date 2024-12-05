@@ -120,7 +120,10 @@ int main(int argc, char* argv[]) {
       SDL_RenderPresent(SDL::renderer);
 
       // CHECK COLLISIONS!!
-      bullets->checkCollisions(*topRow, *upperRow, *lowerRow, *bottomRow);
+      bullets->checkCollisions(*bottomRow);
+      bullets->checkCollisions(*lowerRow);
+      bullets->checkCollisions(*upperRow);
+      bullets->checkCollisions(*topRow);
       bottomRow->checkCollisions(*player);
       lowerRow->checkCollisions(*player);
       upperRow->checkCollisions(*player);

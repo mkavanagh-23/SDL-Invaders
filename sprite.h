@@ -97,6 +97,7 @@ class Alien : public AnimatedSprite {
     void moveDown();
     Color getColor() { return color; }
     bool isActive() { return !destroyed; }
+    void destroy();
     friend class AlienRow;  // Allow AlienRow to access private and protected memebers
 
 };
@@ -173,7 +174,7 @@ struct Bullets {
     void update();
     void draw();
     void fire(const AnimatedSprite& player);
-    bool checkCollisions(AlienRow& topRow, AlienRow& upperRow, AlienRow& lowerRow, AlienRow& bottomRow);
+    bool checkCollisions(AlienRow& alienRow);
 
 };
 

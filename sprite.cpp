@@ -19,6 +19,9 @@ int bulletCounter = 4;
 const int BULLET_WAIT = 40;
 int bulletTimer = BULLET_WAIT;
 
+extern int playerScore;
+extern int playerLives;
+
 /*** AnimatedSprite Functions ***/
 // Constructors
 AnimatedSprite::AnimatedSprite(std::string filePath, int frames, int frameDelay, const RGB& transparencyColor)
@@ -138,8 +141,12 @@ bool Alien::init(){
   return true;
 }
 
-void Alien::moveDown(){
+void Alien::moveDown() {
   position.y += (height + AlienRow::GAP_SIZE);
+}
+
+void Alien::destroy() {
+  destroyed = true; // Mark as destroyed
 }
 
 
@@ -203,18 +210,23 @@ void AlienRow::update(){
 
 void AlienRow::draw(){
   for(int i = 0; i < SIZE; ++i) {
-    aliens[i].draw();
+    if(aliens[i].isActive()) {
+      aliens[i].draw();
+    }
   }
 }
 
 bool AlienRow::checkCollisions(const AnimatedSprite& playerSprite){
   if(!empty) {  // If the row is not empty
     for(int i = 0; i < SIZE; ++i) {   // For each alien in the row
-      if(checkCollision(aliens[i], playerSprite) || (aliens[i].getLocation().y + aliens[i].getHeight()) >= 25*32) { // If the player collides with the sprite or sprite reaches the player base
-        std::cout << "Alien collided with player, lose a life.\n";
-        // Decrement player life
-        // Reset positioning
-        // Return true, we don't need to check any further
+      if(aliens[i].isActive()) {    // If the alien is active
+        if(checkCollision(aliens[i], playerSprite) || (aliens[i].getLocation().y + aliens[i].getHeight()) >= 25*32) { // If the player collides with the sprite or sprite reaches the player base
+          std::cout << "Alien collided with player, lose a life.\n";
+          playerLives--;    // Decrement player life
+          // Reset positioning
+          // Return true, we don't need to check any further
+          return true;
+        }
       }
     }
   }
@@ -316,58 +328,32 @@ void Bullets::draw() {
   }
 }
 
-bool Bullets::checkCollisions(AlienRow& topRow, AlienRow& upperRow, AlienRow& lowerRow, AlienRow& bottomRow){
-  for(int i = 0; i < MAX_ACTIVE; ++i) { // For each bullet
-    if(armory[i].isActive()) {  // If the bullet is currently active
-      if(!bottomRow.isEmpty()) {  // IF bottom row is not empty
-        for(int j = 0; j < bottomRow.SIZE; j++) {   // For each alien in bottom row
-          if(checkCollision(armory[i], bottomRow.aliens[j])) {  // If the alien and bullet collide
-            std::cout << "Collision between bullet #" << i + 1 << " and a " << static_cast<int>(bottomRow.aliens[j].getColor()) << " ufo.\n";
-            return true;
-            // Destory and explode the alien
-            // increment the score
-            // mark the bullet as not active
-            // Check and update row empty status
+bool Bullets::checkCollisions(AlienRow& alienRow){
+  if(!alienRow.isEmpty()) {  // IF bottom row is not empty
+    for(int i = 0; i < MAX_ACTIVE; ++i) { // For each bullet
+      if(armory[i].isActive()) {  // If the bullet is currently active
+        for(int j = 0; j < alienRow.SIZE; j++) {   // For each alien in the row
+          if(checkCollision(armory[i], alienRow.aliens[j])) {  // If the alien and bullet collide
+            std::cout << "Collision between bullet #" << i + 1 << " and a " << static_cast<int>(alienRow.aliens[j].getColor()) << " ufo.\n";
+            // Destory the alien
+            alienRow.aliens[j].destroy();
+            // Set the bullet as not active
+            armory[i].active = false;
+            // Check if row is empty
+            bool empty = true;
+            for(int k = 0; k < alienRow.SIZE; ++k) {
+              if(alienRow.aliens[k].isActive()) {   // If an object is found to be active
+                empty = false;  // Set the empty flag to false
+              }
+            }
+            if(empty)   // If the row is empty
+              alienRow.empty = true;    // Set the member to true
+
+            playerScore++;
+            
             // return true, we don't need to check any further
-          }
-        }
-      }
-      if(!lowerRow.isEmpty()) {  // IF bottom row is not empty
-        for(int j = 0; j < lowerRow.SIZE; j++) {   // For each alien in bottom row
-          if(checkCollision(armory[i], lowerRow.aliens[j])) {  // If the alien and bullet collide
-            std::cout << "Collision between bullet #" << i + 1 << " and a " << static_cast<int>(lowerRow.aliens[j].getColor()) << " ufo.\n";
             return true;
-            // Destory and explode the alien
             // increment the score
-            // mark the bullet as not active
-            // Check and update row empty status
-            // return true, we don't need to check any further
-          }
-        }
-      }
-      if(!upperRow.isEmpty()) {  // IF bottom row is not empty
-        for(int j = 0; j < upperRow.SIZE; j++) {   // For each alien in bottom row
-          if(checkCollision(armory[i], upperRow.aliens[j])) {  // If the alien and bullet collide
-            std::cout << "Collision between bullet #" << i + 1 << " and a " << static_cast<int>(upperRow.aliens[j].getColor()) << " ufo.\n";
-            return true;
-            // Destory and explode the alien
-            // increment the score
-            // mark the bullet as not active
-            // Check and update row empty status
-            // return true, we don't need to check any further
-          }
-        }
-      }
-      if(!topRow.isEmpty()) {  // IF bottom row is not empty
-        for(int j = 0; j < topRow.SIZE; j++) {   // For each alien in bottom row
-          if(checkCollision(armory[i], topRow.aliens[j])) {  // If the alien and bullet collide
-            std::cout << "Collision between bullet #" << i + 1 << " and a " << static_cast<int>(topRow.aliens[j].getColor()) << " ufo.\n";
-            return true;
-            // Destory and explode the alien
-            // increment the score
-            // mark the bullet as not active
-            // Check and update row empty status
-            // return true, we don't need to check any further
           }
         }
       }

@@ -4,6 +4,7 @@
 #include <fstream>
 
 // Constructor
+// Create surface and rectangle for background object
 Background::Background(std::string filePath)
   : PATH{ filePath }
 {
@@ -13,11 +14,13 @@ Background::Background(std::string filePath)
 }
 
 // Destructor
+// Destroy background texture
 Background::~Background() {
   SDL_DestroyTexture(texture);  // Destroy the texture object
 }
 
 // Increment BG by scrollSpeed
+// Account for looping when image moves off of screen
 void Background::scroll() {
   yOffset += scrollSpeed;   //Increment the y-offset by the scroll speed
   if(yOffset >= settings::SCREEN_HEIGHT)  //If the image has moved off the screen
@@ -26,12 +29,15 @@ void Background::scroll() {
 }
 
 // Draw the background to the render
+// Offset and draw again to simulate motion
 void Background::draw() {
   SDL_RenderCopy(SDL::renderer, texture, NULL, &rect); // Copy the image to the render
   rect.y = yOffset - settings::SCREEN_HEIGHT; // Scroll the image down
   SDL_RenderCopy(SDL::renderer, texture, NULL, &rect); //Copy the image to the render
 }
 
+// Create a tilemap object from given image path
+// Load each line from the map file and fill all members
 Tilemap::Tilemap(std::string filePath)
   : PATH{filePath}
 {
@@ -109,6 +115,7 @@ Tilemap::Tilemap(std::string filePath)
   in.close();
 }
 
+// Destroy all textures and tiles
 Tilemap::~Tilemap(){
   SDL_DestroyTexture(texture);
   if(tiles != NULL) {
@@ -117,6 +124,7 @@ Tilemap::~Tilemap(){
   }
 }
 
+// Draw the tilemap to the render
 void Tilemap::draw(){
   // Draw a layer
   for(int row = 0; row < mapRow; row++) {
@@ -145,6 +153,7 @@ void Tilemap::draw(){
   } // End row rendering  
 }
 
+// operator<< overload for debug purpopses
 // Print out info on the background to the screen
 std::ostream& operator<<(std::ostream& out, const Background& background) {
   out << "Background:\n"

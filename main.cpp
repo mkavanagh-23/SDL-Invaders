@@ -13,37 +13,25 @@
 #include "background.h"
 #include "settings.h"
 
-// COMPILE WITH --std=c++14
-
-// TODO:
-// Set up scoring
-  // For each UFO destroyed, playerScore++
-  // 40 total ufos... can use either score / 40 to determine round (likely faster)
-  // or we can check each row for empty state (likely slower but more logical)
-// Set up lives
-  // 3 Lives
-  // or do we want to just want to check collision with the player sprite and 'y + height' with the y-axis?
-  // Upon lost life, round continues but enemy posititions are reset (destroyed stay destroyed)
-// Bind enemy speed to background scroll speed and increment with each round
-// The increased scroll speed gives a more stressful feel
 
 /****************************** GLOBAL DATA ***********************************/
 
 // Global Game Variables
 int playerScore = 0;    // Player's score
 int playerLives = 3;    // Player's lives
-int currentRound = 1;
-const int MAX_ROUNDS = 3;
+int currentRound = 1;   // The current round of play
+const int MAX_ROUNDS = 3;   // Maximum number of rounds of play
 bool newRound = false;   // Do we need to set up the next round?
 bool playGame = false;  // Menu state variable
 bool startRound = false; // Start the next round
 bool menuDeleted = false;   // Did we delete the menu object?
-bool playerWin = false;
+bool playerWin = false;     // Did the player win?
 
 // Declare Global game objects
+// To be intialized in init functions
 Background* background = NULL;
 Tilemap* tilemap = NULL;
-AnimatedSprite* logo = NULL;
+AnimatedSprite* logo = NULL;        // Pointers to all sprite objects
 AnimatedSprite* roundOne = NULL;
 AnimatedSprite* roundTwo = NULL;
 AnimatedSprite* roundThree = NULL;
@@ -61,9 +49,9 @@ Bullets* bullets = NULL;    // Bullets holds 5 bullets to rotate through
 // Function Prototypes
 // Game state functions
 void createObjects();   // Instantiate game objects and set initial states
-void createAliens(int speed);
+void createAliens(int speed);   // Create all alien objects
 void destroyObjects();  // Free memory associated with instantiated objects and nullify pointers
-void deleteAliens();
+void deleteAliens();    // Delete all alien objects
 
 // Gameplay Functions
 namespace game {
@@ -71,14 +59,15 @@ namespace game {
   void end();   // Destory game objects and end game
   void update();    // Update the state of each object
   void draw();  // Draw each object to the render
-  void nextRound();
-  void setMenu(int round);
+  void nextRound(); // Set up environment for next round of play
+  void setMenu(int round);      // Set which menu to display between each round
   void displayMenu(const Uint8* pressedKeys);   // Display a start menu
-  void displayEnd();
+  void displayEnd();    // Display win or lose message at the end
 }
 
 /************************* MAIN GAME FUNCTION ***************************/
 int main(int argc, char* argv[]) {
+  std::cout << "Matthew Kavanagh\nCSC-222-301W | Fall 2024\nSUNY OCC\nFinal Project\n\n";
   
   // Initialize libraries and static data members
   // Check for successful initialization, exit if it failed
@@ -306,7 +295,6 @@ void game::update() {
 void game::draw() {
     // Set the window title
     char title[64];
-
     std::sprintf(title, "Player Score: %d    |    Lives Remaining: %d", playerScore, playerLives);
     SDL_SetWindowTitle(SDL::gameWindow, title);
     
@@ -347,6 +335,11 @@ void game::setMenu(int round) {
 
 /*********** NEEDS HEADER *************/
 void game::displayMenu(const Uint8* pressedKeys) {
+  // Set the window title
+  char title[64];
+  std::sprintf(title, "Player Score: %d    |    Lives Remaining: %d", playerScore, playerLives);
+  SDL_SetWindowTitle(SDL::gameWindow, title);
+  
   bool end = false;
   // Check if player presses start
   if(pressedKeys[SDL_SCANCODE_SPACE]) {
@@ -380,6 +373,11 @@ void game::displayMenu(const Uint8* pressedKeys) {
 }
 
 void game::displayEnd() {
+  // Set the window title
+  char title[64];
+  std::sprintf(title, "Player Score: %d    |    Lives Remaining: %d", playerScore, playerLives);
+  SDL_SetWindowTitle(SDL::gameWindow, title);
+  
   int count = 0;
   while(count < 200) {
     player->nextFrame();

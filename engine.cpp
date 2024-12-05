@@ -10,7 +10,6 @@ namespace SDL {
   SDL_Window* gameWindow = NULL;
   SDL_Renderer* renderer = NULL;
   SDL_Surface* tempSurface = NULL;
-  //MOVE TO ALIEN FILES
   bool alien_init = false;
   bool bullet_init = false;
   bool static_init = false;         // Track static class variable initialization state to be used as an invariant

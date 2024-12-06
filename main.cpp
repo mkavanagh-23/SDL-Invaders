@@ -1,3 +1,93 @@
+// NOTE: MUST BE COMPILED WITH std=C++14 or higher
+// IN CODE BLOCKS DO THE FOLLOWING:
+//
+//    Project > Build options... > Check the box to compile using g++14
+//    ** See further instructions and screenshots in D2L submission and README.md **
+//
+/***************************** Prologue Section ********************************
+ * Title: SDL Invaders - CSC222 Final Project
+ * Author: Matthew Kavanagh
+ * Date: 6 December, 2024
+ * Course & Section: CSC 222-301W
+ * Description: This program will render a playable one-player "Space Invaders" game.
+ *  The game consists of three rounds of play where the player battles 40 randomly
+ *  generated alien ufo enemies. The player gains one point for each alien destroyed,
+ *  and loses one of their three lives each time an alien collides with them or the base
+ *  they are guarding. Each round advances when all 40 aliens have been cleared. Rounds get 
+ *  progressively more difficult. Clear alln3 rounds to win the game.
+ *
+ * Controls:
+ *  Left Key    // Move the player left
+ *  Right Key   // Move the player right
+ *  Space Key   // Fire a bullet
+ *  Esc Key     // End the game
+ *
+ * Data Requirements:
+ *    background.h / background.cpp   // Contain all background objects and functions
+ *    engine.h / engine.cpp           // Contain all SDL objects and functions
+ *    settings.h                      // Contain global game settings
+ *    sprite.h / sprite.cpp           // Contain all objects and functions for animated sprites
+ *    types.h / types.cpp             // User-defined datatypes and related functions
+ *
+ *    ** All headers contain declarations and class definitions, cpp files contain function definitions and initializations
+ *
+ * Refined Algorithms (see headers for class definitions):
+ *  background.cpp:
+ *    **Contains background and tilemap functions
+ *    **No new functions from in-class
+ *
+ *  engine.cpp:
+ *    **Wrapper for SDL functions
+ *    **No new functions from in-class
+ *
+ *  main.cpp (this file):
+ *    int main()
+ *    bool game::init()                   // Initialize the game
+ *    void game::end()                    // End the game
+ *    void game::update()                 // Update all objects
+ *    void game::draw()                   // Draw all active objects
+ *    void game::nextRound()              // Progress to next round
+ *    void game::setMenu(int round)                     // Setup menu for display
+ *    void game::displayMenu(const Uint8* pressedKeys)  // Display selected menu until space
+ *    void game::displayEnd()    
+ *                       // Display ending menu
+ *  sprite.cpp:
+ *    class AnimatedSprite:
+ *      AnimatedSprite()                  // Constructor and derivatives
+ *      void nextFrame()                  // Update animation
+ *      void draw()                       // Draw sprite to render
+ *      void setLocation(const Point2d&)  // Set location for sprite
+ *      void setDirection(const Direction&)   // Set the direction for movement
+ *      void setSpeed(int)            // Set the sprite movement speed
+ *      bool move()                   // Move the sprite in the current direction
+ *      void update()                 // Copy sprite's location to the render rectangle
+ *    class Alien (inherits AnimatedSprite):
+ *      static bool init()          // Initialize static textures
+ *      void moveDown()             // Move the alien down a row and flip direction
+ *      void destroy()              // Destroy the alien object and prevent it from rendering
+ *    class AlienRow:
+ *      void resetLocation()        // Reset all aliens to their starting location
+ *      void resetRound(int round)           // Set all variables for the current round
+ *      void moveDown()                   // Move each alien in the row down
+ *      void update()               // Update each alien render position
+ *      void draw()                 // Draw each alien to the render
+ *    class Bullet (inherits AnimatedSprite):
+ *      static bool init()        // Initialize static textures
+ *      void moveUp()             // Move the bullet up
+ *      void shoot()              // Initially shoot the bullet
+ *    struct Bullets:
+ *      void update()             // Update the render location of each active bullet
+ *      void draw()               // Draw each active bullet
+ *      void fire(const sprite&)  // Fire bullet from center of given sprite
+ *      bool checkCollisions(alienRow)  // Check collision between active bullets and each alien in row
+ *    bool checkCollision(sprite1, sprite2)   // Check for collision between two sprites
+ *    void explode(const Point2d&, int)       // Explosion animation at given location and delay time
+ *
+ *  types.cpp
+ *    RGB hexToRGB(std::string hex)   // Covert a hex color value to R,G,B values
+ *
+ ******************************************************************************/
+
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_video.h>
 #include <cstdio>
@@ -5,6 +95,7 @@
 #include <ctime>
 #include <cassert>
 #include <iostream>
+#include <ostream>
 #include <string>
 #include <SDL2/SDL.h>
 #include "engine.h"
@@ -65,7 +156,69 @@ namespace game {
   void displayEnd();    // Display win or lose message at the end
 }
 
-/************************* MAIN GAME FUNCTION ***************************/
+/************************** Function: main() *****************************
+ * Description: This function will handle the main game loop. It will take in key presses
+ *  and handle rendering of menus, and all game objects. The game will also handle all logical checking
+ *  for game state.
+
+ * Data Requirements:
+ *  const Uint8* keys     // Holds the key presses
+ *  
+ *
+ * Global Variables:
+ *  int playerScore       // Player's score
+ *  int playerLives       // Player's lives
+ *  int currentRound      // The current round of play
+ *  const int MAX_ROUNDS; // Maximum number of rounds of play
+ *  bool newRound;        // Do we need to set up the next round?
+ *  bool playGame;        // Menu state variable
+ *  bool startRound;      // Start the next round
+ *  bool menuDeleted;     // Did we delete the menu object?
+ *  bool playerWin;       // Did the player win?
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Print out name
+ *  Initialize game variables
+ *    IF !init(),
+ *    THEN print error message and exit
+ *  BEGIN GAME LOOP
+ *  While(ProgramIsRunning)
+ *    Get key presses from user
+ *    IF Escape,
+ *      THEN, break from game loop
+ *    IF left,
+ *      THEN, set player direction to left and move
+ *    IF right,
+ *      THEN, set player direction to right and move
+ *  IF !(playGame)
+ *      THEN, display start menu
+ *  ELSE PLAY GAME
+ *    IF(newRound)
+ *      THEN, update variables for next round
+ *    IF !(startRound)
+ *      THEN, set menu to current round and display menu
+ *    ELSE PLAY GAME
+ *      Increment bullet timer
+ *      IF player pressed space
+ *        THEN, fire bullet
+ *      Update all game objects
+ *      Draw all game objects
+ *      Check collisions between active bullets and aliens
+ *      Check collisions between player and aliens
+ *        IF collide,
+ *          THEN, reset sprite locations
+ *      Check for player loss
+ *        IF(playerLives <= 0) THEN set win to false and break
+ *      Check for player win
+ *        IF(each row is empty and round is 3) THEN set win to true and break
+ *      Else if each row is empty set newRound to true
+ *  END GAME LOOP
+ *  Display end menu
+ *******************************************************************************/
+
 int main(int argc, char* argv[]) {
   std::cout << "Matthew Kavanagh\nCSC-222-301W | Fall 2024\nSUNY OCC\nFinal Project\n\n";
   
@@ -165,7 +318,7 @@ int main(int argc, char* argv[]) {
       }
     }
   }
-
+  // Display end menu and exit
   game::end();
   return 0;
 }
@@ -214,7 +367,7 @@ void createObjects() {
   bullets = new Bullets();
   createAliens(1);
 
-  // Set object state
+  // Set object location and update render position
   logo->setLocation({ (settings::SCREEN_WIDTH - logo->getWidth()) / 2, -30 });
   logo->update();
   roundOne->setLocation({ (settings::SCREEN_WIDTH - roundOne->getWidth()) / 2, -30 });
@@ -377,6 +530,7 @@ void game::displayEnd() {
   char title[64];
   std::sprintf(title, "Player Score: %d    |    Lives Remaining: %d", playerScore, playerLives);
   SDL_SetWindowTitle(SDL::gameWindow, title);
+  std::cout << "Final Score: " << playerScore << "\nLives Remaining: " << playerLives << std::endl;
   
   int count = 0;
   while(count < 200) {

@@ -132,7 +132,6 @@ class AlienRow {
     void update();
     void draw();
     bool isEmpty() { return empty; }
-    //void checkExplode();
 
     friend class Bullets;   // Allow bullets to access members so we can determine collisions
 
@@ -160,8 +159,7 @@ class Bullet : public AnimatedSprite {
     bool isActive() { return active; }
     void moveUp();
     void shoot();
-    // Fire/Shoot object
-    // Public "shoot"
+
     friend class Bullets; // Allow Bullets to access private and protected members
 };
 

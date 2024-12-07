@@ -375,10 +375,10 @@ void AlienRow::update(){
   }
 }
 
-// Draw each alien in the row to the render
+// Draw each active alien in the row to the render
 void AlienRow::draw(){
   for(int i = 0; i < SIZE; ++i) {
-    if(aliens[i].isActive()) {
+    if(aliens[i].isActive()) {  // Check if the alien is active
       aliens[i].draw();
     }
   }
@@ -442,7 +442,7 @@ Bullet::Bullet()
   int sourceX = 0;
   int sourceY = 0;
   setLocation({-100, -100});
-  active = false;
+  active = false;       // Initialize as not active
   // And fill the source and dest rectangles
   SDL::FillRect(rectSource, sourceX, sourceY, width, height);
   SDL::FillRect(rectPlacement, position.x, position.y, width, height);

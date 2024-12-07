@@ -48,33 +48,19 @@
  *  sprite.cpp:
  *    class AnimatedSprite:
  *      AnimatedSprite()                  // Constructor and derivatives
- *      void nextFrame()                  // Update animation
- *      void draw()                       // Draw sprite to render
- *      void setLocation(const Point2d&)  // Set location for sprite
- *      void setDirection(const Direction&)   // Set the direction for movement
- *      void setSpeed(int)            // Set the sprite movement speed
  *      bool move()                   // Move the sprite in the current direction
- *      void update()                 // Copy sprite's location to the render rectangle
  *    class Alien (inherits AnimatedSprite):
- *      static bool init()          // Initialize static textures
+ *      Alien()                     // Constructor
  *      void moveDown()             // Move the alien down a row and flip direction
  *      void destroy()              // Destroy the alien object and prevent it from rendering
  *    class AlienRow:
  *      void resetLocation()        // Reset all aliens to their starting location
  *      void resetRound(int round)           // Set all variables for the current round
- *      void moveDown()                   // Move each alien in the row down
  *      void update()               // Update each alien render position
- *      void draw()                 // Draw each alien to the render
- *    class Bullet (inherits AnimatedSprite):
- *      static bool init()        // Initialize static textures
- *      void moveUp()             // Move the bullet up
- *      void shoot()              // Initially shoot the bullet
+ *      bool checkCollisions()      // Check for collisions between alien row and player
  *    struct Bullets:
- *      void update()             // Update the render location of each active bullet
- *      void draw()               // Draw each active bullet
  *      void fire(const sprite&)  // Fire bullet from center of given sprite
  *      bool checkCollisions(alienRow)  // Check collision between active bullets and each alien in row
- *    bool checkCollision(sprite1, sprite2)   // Check for collision between two sprites
  *    void explode(const Point2d&, int)       // Explosion animation at given location and delay time
  *
  *  types.cpp

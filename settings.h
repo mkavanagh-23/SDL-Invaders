@@ -8,7 +8,6 @@ namespace settings {
   const int SCREEN_WIDTH = 1600;
   const int SCREEN_HEIGHT = 900;
   const int NUM_ROUNDS = 3;
-  //const std::string BG_MUSIC = NULL;
 }
 
 #endif

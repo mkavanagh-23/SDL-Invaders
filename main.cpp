@@ -42,15 +42,9 @@
  *
  *  main.cpp (this file):
  *    int main()
- *    bool game::init()                   // Initialize the game
- *    void game::end()                    // End the game
- *    void game::update()                 // Update all objects
  *    void game::draw()                   // Draw all active objects
  *    void game::nextRound()              // Progress to next round
- *    void game::setMenu(int round)                     // Setup menu for display
  *    void game::displayMenu(const Uint8* pressedKeys)  // Display selected menu until space
- *    void game::displayEnd()    
- *                       // Display ending menu
  *  sprite.cpp:
  *    class AnimatedSprite:
  *      AnimatedSprite()                  // Constructor and derivatives
@@ -88,8 +82,6 @@
  *
  ******************************************************************************/
 
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_video.h>
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -183,27 +175,34 @@ namespace game {
  *  Print out name
  *  Initialize game variables
  *    IF !init(),
- *    THEN print error message and exit
+ *      THEN print error message and exit
+ *    ENDIF
  *  BEGIN GAME LOOP
  *  While(ProgramIsRunning)
  *    Get key presses from user
  *    IF Escape,
  *      THEN, break from game loop
+ *    ENDIF
  *    IF left,
  *      THEN, set player direction to left and move
+ *    ENDIF
  *    IF right,
  *      THEN, set player direction to right and move
+ *    ENDIF
  *  IF !(playGame)
  *      THEN, display start menu
  *  ELSE PLAY GAME
  *    IF(newRound)
  *      THEN, update variables for next round
+ *     ENDIF
  *    IF !(startRound)
  *      THEN, set menu to current round and display menu
+ *    ENDIF
  *    ELSE PLAY GAME
  *      Increment bullet timer
  *      IF player pressed space
  *        THEN, fire bullet
+ *       ENDIF
  *      Update all game objects
  *      Draw all game objects
  *      Check collisions between active bullets and aliens
@@ -214,7 +213,9 @@ namespace game {
  *        IF(playerLives <= 0) THEN set win to false and break
  *      Check for player win
  *        IF(each row is empty and round is 3) THEN set win to true and break
- *      Else if each row is empty set newRound to true
+ *        Else if each row is empty set newRound to true
+ *      ENDIF
+ *    ENDIF
  *  END GAME LOOP
  *  Display end menu
  *******************************************************************************/
@@ -323,6 +324,7 @@ int main(int argc, char* argv[]) {
   return 0;
 }
 
+// Initialize all objects
 bool game::init() {
   //Initialize SDL
   if(!SDL::Init())
@@ -332,7 +334,7 @@ bool game::init() {
   if(!Alien::init() || !Bullet::init()) {
     return false;
   }
-  SDL::static_init = true;
+  SDL::static_init = true;  // Set static initialization flag to true
 
   //Create game objects
   createObjects();
@@ -340,18 +342,25 @@ bool game::init() {
   return true;  // If we made it this far then we initialized successfully
 }
 
+// End the game
 void game::end() {
+  // If player wins set the logo to win logo
   if(playerWin) {
     logo = winLogo;
   }
+  // Otherwise set to lose logo
   else {
     logo = loseLogo;
   }
+  // Display the end menu
   game::displayEnd();
+  // Destroy all objects
   destroyObjects();
+  // Destroy SDL objects and end session
   SDL::CloseShop();
 }
 
+// Instantiate all objects with initial values
 void createObjects() {
   background = new Background("graphics/bg.bmp");
   tilemap = new Tilemap("graphics/tilemap.bmp");
@@ -385,6 +394,7 @@ void createObjects() {
   player->setSpeed(5);
 }
 
+// Instantiate all alien objects with given speed
 void createAliens(int speed) {
   topRow = new AlienRow(Rank::first, speed);
   upperRow = new AlienRow(Rank::second, speed);
@@ -392,6 +402,7 @@ void createAliens(int speed) {
   bottomRow = new AlienRow(Rank::fourth, speed);
 }
 
+// Destory all objects and assign pointers to NULL to prevent invalid memory access
 void destroyObjects() {
   deleteAliens();
   // Delete each object
@@ -419,6 +430,7 @@ void destroyObjects() {
   bullets = NULL;
 }
 
+// Delete all alien objects and assign pointers to NULL
 void deleteAliens() {
   delete topRow;
   delete upperRow;
@@ -431,6 +443,7 @@ void deleteAliens() {
 
 }
 
+// Update all object animations and update render locations
 void game::update() {
     // Advance to next frame
     player->nextFrame();
@@ -445,12 +458,43 @@ void game::update() {
     bullets->update();
 }
 
+/************************** Function: game::draw() *****************************
+ * Description: This function will draw a single frame of the game and update 
+ *  the window title.
+ *
+ * Data Requirements:
+ *  None
+ *
+ * Global Variables:
+ *  int playerScore         // Player's score
+ *  int playerLives         // Player's lives
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Set the window title
+ *      Store player score and player lives in a char buffer
+ *      Set window title to char buffer
+ *  Draw the frame
+ *      Clear renderer
+ *      Draw the background
+ *      Draw the tilemap
+ *      Draw the player
+ *      Draw the topRow
+ *      Draw the upperRow
+ *      Draw the lowerRow
+ *      Draw the bottomRow
+ *      Present the render to the screen
+ *      Wait a bit
+ *******************************************************************************/
 void game::draw() {
     // Set the window title
     char title[64];
     std::sprintf(title, "Player Score: %d    |    Lives Remaining: %d", playerScore, playerLives);
     SDL_SetWindowTitle(SDL::gameWindow, title);
     
+    // Draw the frame
     SDL_RenderClear(SDL::renderer);
     background->draw();
     tilemap->draw();
@@ -476,17 +520,55 @@ void game::setMenu(int round) {
     case 3:
       logo = roundThree;
       break;
-    case 4:
-      logo = winLogo;
-    case 5:
-      logo = loseLogo;
     default:
       logo = NULL;
       break;  
   }
 }
 
-/*********** NEEDS HEADER *************/
+/************************** Function: game::displayMenu() *****************************
+ * Description: This function will display a menu screen until the player presses 'SPACE'
+ *
+ * Data Requirements:
+ *  const Uint8* pressedKeys       //   Player keypresses as input parameter
+ *
+ * Global Variables:
+ *  int playerScore
+ *  int playerLives
+ *  bool startRound     // Tracks if the menu is for the start of a round
+ *  bool playGame       // Tracks whether the user has passed the start menu
+ *
+ * Local Variables:
+ *  bool end            // Boolean flag to exit the menu
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Set the window title
+ *  Check if player pressed start
+ *      IF keys(SPACE), THEN set game/round flags
+ *          IF (playGame == True), THEN start the round
+ *              startRound = True
+ *          ELSE start the game
+ *              playGame = True
+ *          ENDIF
+ *          Delay a bit
+ *          Reset player position
+ *          Set loop flag to end
+ *      END IF 
+ *   Advance player to nexrt frame and update
+ *   Advance start icon to nect frame
+ *   Scroll background
+ *   Clear render
+ *   Draw all objects to render
+ *   Present render
+ *   IF(end), THEN
+ *      Delete the logo object
+ *   ENDIF
+ *   Delay a bit
+ * 
+ *******************************************************************************/
 void game::displayMenu(const Uint8* pressedKeys) {
   // Set the window title
   char title[64];
@@ -525,6 +607,7 @@ void game::displayMenu(const Uint8* pressedKeys) {
   SDL_Delay(20);
 }
 
+// SAME AS ABOVE WITHOUT GAME START/ROUND CHECK
 void game::displayEnd() {
   // Set the window title
   char title[64];
@@ -548,6 +631,30 @@ void game::displayEnd() {
   }
 }
 
+/************************** Function: game::nextRound() ************************
+ * Description: This function will update the game variables and state for the next
+ *  round of play
+ *
+ * Data Requirements:
+ *  None
+ *
+ * Global Variables:
+ *  int currentRound         // Player's score
+ *  int newRound         // Player's lives
+ *  int startRound
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Set round progression flags
+ *      Increment currentRound
+ *      Set newRound flag to false
+ *      Set startRound flag to false
+ *  Increase background scroll speed
+ *  Reset state of all alien rows
+ *  Reset player position
+ *******************************************************************************/
 void game::nextRound() {
   // Increment round counter and reset newRound flag
   currentRound++;

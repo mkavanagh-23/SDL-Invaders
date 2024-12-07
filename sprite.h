@@ -103,6 +103,7 @@ class Alien : public AnimatedSprite {
 
 };
 
+// Hold an entire row of alien objects
 class AlienRow {
   public:
     static const int GAP_SIZE = 20;
@@ -163,6 +164,7 @@ class Bullet : public AnimatedSprite {
     friend class Bullets; // Allow Bullets to access private and protected members
 };
 
+// Hold all bullet objects
 struct Bullets {
   public:
     static const int MAX_ACTIVE = 5;  // Maximum number of bullet objects active at a single time

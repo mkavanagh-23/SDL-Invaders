@@ -25,7 +25,33 @@ extern int playerLives;
 extern AnimatedSprite* explosion;
 
 /*** AnimatedSprite Functions ***/
-// Constructors
+/************************** Function: AnimatedSprite() *************************
+ * Description: This function will construct a sprite object. It will create the sprite
+ *  texture and query it to get the dimensions. It will create the source and render 
+ *  rectangles and set the initial position
+ *
+ * Data Requirements:
+ *  std::string filePath    // Path to sprite bitmap
+ *  int frames          // Number of frames on animation strip
+ *  int frameDelay      // How many frames to delay before advancing the animation
+ *  RGB transparencyColor   // Transparency mask stored in an RGB object
+ *  std::string transparencyHex     // Transparency mask stored as a hexadecimal string
+ *
+ * Global Variables:
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Create the texture
+ *      Load the image onto a surface
+ *      Set the transparency mask
+ *      Load the surface onto a texture
+ *      Query the texture and calculate width and height
+ *  Set the initial sprite position to bottom center of screen
+ *  Create the source rectangle
+ *  Create the render rectangle
+ *******************************************************************************/
 AnimatedSprite::AnimatedSprite(std::string filePath, int frames, int frameDelay, const RGB& transparencyColor)
   : PATH{ filePath }, MAX_SPRITE_FRAME{ frames }, FRAME_DELAY{ frameDelay }, transparency{ transparencyColor }
 {
@@ -89,6 +115,30 @@ void AnimatedSprite::setSpeed(const int speed) {
   SPEED = speed;
 }
 
+/************************** Function: AnimatedSprite::move() *************************
+ * Description: This function will move the sprite in the currently stored direction.
+ *  It will perform bounds checking and keep the sprite on the screen.
+ *
+ * Data Requirements:
+ *  Point2d position        // Sprite position
+ *
+ * Global Variables:
+ *  settings::screen_width  // Screen width for bounds checking
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Increase sprite location by speed
+ *      position.x += speed * movement direction
+ *      IF we hit the left edge, THEN
+ *          position.x = 0
+ *          return false to indicate wall hit
+ *      IF we hit right edge, THEN
+ *          position.x = screen width - width
+ *          return false to indicate wall hit
+ *      Return true if no hit occurred
+ *******************************************************************************/
 bool AnimatedSprite::move() {
   position.x += SPEED * static_cast<int>(movementDir);
   if(position.x <= 0) { //If we hit the left edge
@@ -102,14 +152,39 @@ bool AnimatedSprite::move() {
   return true;
 }
 
+// Set render rectangle position to sprite position
 void AnimatedSprite::update() {
   rectPlacement.x = position.x;
   rectPlacement.y = position.y;
 }
 
 /*** Alien Functions ***/
+/************************** Function: Alien() *************************
+ * Description: This function will construct an alien sprite object. It will create the sprite
+ *  texture and query it to get the dimensions. It will create the source and render 
+ *  rectangles and set the initial position
+ *
+ * Data Requirements:
+ *  std::string alienSheetPath      // static path to alien bmp
+ *  int speed       // alien speed
+ *
+ * Global Variables:
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Call the base class constructor
+ *  Set transparency member
+ *  Set texture sheet pointer
+ *  Get height and width of a single sprite
+ *  Generate a random color for the alien
+ *  Generate a random starting frame
+ *  Use spriteFrame and color members to calculate source x and y position
+ *  Create the source and destination rectangles
+ *******************************************************************************/
 Alien::Alien( int speed )
-  : AnimatedSprite(alienSheetPath, 2, std::rand() % 50 + 30, speed)
+  : AnimatedSprite(alienSheetPath, 2, std::rand() % 50 + 30, speed)     // Set animation speed to a random value
 {
   transparency = hexToRGB(alienTransparency); // Set the transparency member variable
   textureSheet = alienTextureSheet; // Set the texture pointer to point at the alienTextureSheet
@@ -128,6 +203,7 @@ Alien::Alien( int speed )
   SDL::FillRect(rectPlacement, position.x, position.y, width, height);
 }
 
+//Initialize static alien textures before we can build alien objects
 bool Alien::init(){
   //Initialize the static alien texture
   RGB color = hexToRGB(alienTransparency);
@@ -143,15 +219,17 @@ bool Alien::init(){
   return true;
 }
 
+// Move the alien down to the next row
 void Alien::moveDown() {
-  position.y += (height + AlienRow::GAP_SIZE);
+  position.y += (height + AlienRow::GAP_SIZE);  // Move down by height plus gap size
 }
 
+// Mark the alien as destroyed
 void Alien::destroy() {
   destroyed = true; // Mark as destroyed
 }
 
-
+// Create a row of aliens and set their initial location
 AlienRow::AlienRow(Rank position, int speed)
   : aliens{
       Alien(speed),
@@ -171,6 +249,30 @@ AlienRow::AlienRow(Rank position, int speed)
   resetLocation();
 }
 
+// Set initial position for each alien
+/************************** Function: AlienRow::resetLocation() *************************
+ * Description: This function will go through each alien in the row and reset it to
+ *  its initial location while maintaining all other states
+ *
+ * Data Requirements:
+ *  None
+ *
+ * Global Variables:
+ *  int xPos    // xPosition
+ *  int yPos    // yPosition
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Set xPosition to gutter size for first alien placement
+ *  Set yPosition to (height + gap * row index) + gap
+ *  FOR each alein in the row
+ *      set the location
+ *      Increment the xPosition by width + gap
+ *  END FOR 
+ *  Set initial direction based on even/odd rank
+ *******************************************************************************/
 void AlienRow::resetLocation() {
   //Iterate over the row
   int xPos = GUTTER_SIZE;
@@ -188,6 +290,28 @@ void AlienRow::resetLocation() {
   }
 }
 
+/************************** Function: AlienRow::resetRound() *************************
+ * Description: Reset alien location and all variables for the start of a new round
+ *
+ * Data Requirements:
+ *  int round       // The current round
+ *
+ * Global Variables:
+ *  None
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Mark the row as not empty
+ *  Reset all alien locations
+ *  FOR each alien in the row
+ *      Set the speed for the cuurrent round
+ *      Set the alien destroyed flag to false so it renders
+ *      Randomize color and animarion data
+ *      Refill the source rectangle
+ *  END FOR LOOP
+ *******************************************************************************/
 void AlienRow::resetRound(int round) {
   // Mark the row as not empty
   empty = false;
@@ -196,7 +320,6 @@ void AlienRow::resetRound(int round) {
   for(int i = 0; i < SIZE; ++i) {   // For each alien
     aliens[i].setSpeed(round);
     aliens[i].destroyed = false;
-    //aliens[i].exploded = false;
 
     //Randomize color
     aliens[i].color = Alien::Color(std::rand() % int(Alien::Color::MAX_COLORS));
@@ -206,12 +329,36 @@ void AlienRow::resetRound(int round) {
 
 }
 
+// Move each alien in the row down
 void AlienRow::moveDown() {
   for(int i = 0; i < SIZE; ++i) {
     aliens[i].moveDown();
   }
 }
 
+/************************** Function: AlienRow::update() *************************
+ * Description: Update each alien in the row for the next frame
+ *
+ * Data Requirements:
+ *  None
+ *
+ * Global Variables:
+ *  None
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  FOR each alien in the row
+ *      Set alien direction to row direction
+ *      Advance alien to next frame
+ *      IF collision occurred, THEN
+ *          Flip the direction
+ *          Move the entire row down
+ *      ENDIF
+ *      Update the alien sprite
+ *  END FOR LOOP
+ *******************************************************************************/
 void AlienRow::update(){
   for(int i = 0; i < SIZE; ++i) {
     aliens[i].setDirection(xDir);
@@ -228,6 +375,7 @@ void AlienRow::update(){
   }
 }
 
+// Draw each alien in the row to the render
 void AlienRow::draw(){
   for(int i = 0; i < SIZE; ++i) {
     if(aliens[i].isActive()) {
@@ -236,6 +384,34 @@ void AlienRow::draw(){
   }
 }
 
+/************************** Function: AlienRow::checkCollisions() **************
+ * Description: This function will check for a collisionm between each alien in the
+ *  row and the player sprite or base. If a collision occurs the player's lives are decremented,
+ *  and explosion is rendered.
+ *
+ * Data Requirements:
+ *  AnimatedSprite& playerSprite    // The sprite to check collision with
+ *
+ * Global Variables:
+ *  None
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  IF the row is not empty, THEN
+ *      FOR each alien in the row
+ *          IF the alien is active
+ *              IF the alien collides with the player or the player's base, THEN
+ *                  Decrement player lives
+ *                  Explode at player location
+ *                  Return true to indicate collision occurred
+ *              ENDIF
+ *          ENDIF
+ *      END FOR LOOP
+ *  ENDIF
+ *  Return false
+ *******************************************************************************/
 bool AlienRow::checkCollisions(const AnimatedSprite& playerSprite){
   if(!empty) {  // If the row is not empty
     for(int i = 0; i < SIZE; ++i) {   // For each alien in the row
@@ -253,15 +429,7 @@ bool AlienRow::checkCollisions(const AnimatedSprite& playerSprite){
   return false;
 }
 
-//void AlienRow::checkExplode() {
-//  for(int i = 0; i < SIZE; ++i) {
-//    if(aliens[i].destroyed && !(aliens[i].exploded)) {
-//      explode(aliens[i].getLocation(), 10);
-//      aliens[i].exploded = true;
-//    }
-//  }
-//}
-
+// Create a bullet object
 Bullet::Bullet() 
   : AnimatedSprite(bulletSheetPath, 1, 0, 15)
 {
@@ -296,6 +464,7 @@ bool Bullet::init(){
   return true;
 }
 
+// Shoot the bullet
 void Bullet::shoot() {
   // Set the bullet to active
   active = true;
@@ -307,7 +476,7 @@ void Bullet::shoot() {
 // No change to xPosition values
 void Bullet::moveUp(){
   position.y -= SPEED;
-  // Check if off the screen
+  // Check if off the screen and mark as inactive if so
   if(position.y <= (height * -1)) {
     active = false;
   }
@@ -315,6 +484,7 @@ void Bullet::moveUp(){
   update();
 }
 
+// Construct all bullet objects
 Bullets::Bullets() 
   : armory{
     Bullet(),
@@ -325,6 +495,35 @@ Bullets::Bullets()
   }
 {}
 
+// Fire a bullet from the collection
+/************************** Function: Bullets::fire() **************
+ * Description: This function will fire a bullet. A timer is employed to prevent the player
+ *  from firing too rapidly. The function handles rotating through each bullet object
+ *  contained in the armory to ensure proper rendering
+ *
+ * Data Requirements:
+ *  AnimatedSprite& playerSprite    // The sprite to fire the bullet from
+ *
+ * Global Variables:
+ *  bulletCounter       // The current bullet to be fired
+ *  bulletTimer         // The timer to count before firing a bullet
+ *  BULLET_WAIT         // How long to count before firing
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  IF the timer has passed the wait time THEN
+ *      set x an y position to center of player
+ *      Set the location of the current bullet
+ *      Shoot the current bullet
+ *      Increment the bullet counter
+ *      IF the bullet counter is past the last bullet, THEN
+ *          Reset the bullet counter to 0
+ *      ENDIF
+ *      Reset the bullet timer
+ *  ENDIF
+ *******************************************************************************/
 void Bullets::fire(const AnimatedSprite& player) {
   if(bulletTimer >= BULLET_WAIT) {
     int xPos = player.getLocation().x + (player.getWidth() - armory[bulletCounter].getWidth()) / 2;
@@ -339,6 +538,7 @@ void Bullets::fire(const AnimatedSprite& player) {
   }
 }
 
+// Move each active bullet
 void Bullets::update() {
   for(int i = 0; i < MAX_ACTIVE; ++i) {
     if(armory[i].isActive()) {
@@ -347,6 +547,7 @@ void Bullets::update() {
   }
 }
 
+// Draw each active bullet
 void Bullets::draw() {
   for(int i = 0; i < MAX_ACTIVE; ++i) {
     if(armory[i].isActive()) {
@@ -355,6 +556,44 @@ void Bullets::draw() {
   }
 }
 
+// Check for collision between each active bullet and each alien
+// Start at the bottom row as it is more likely to occur
+/************************** Function: AlienRow::checkCollisions() **************
+ * Description: This function will check for a collisionm between each active bullet
+ *  and each acrive alien in each active row. If a collision occurs, the alien is destroyed,
+ *  the player's score is incremented, and anm explosion is rendered.
+ *
+ * Data Requirements:
+ *  AnimatedSprite& playerSprite    // The sprite to check collision with
+ *
+ * Global Variables:
+ *  None
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  IF the row is not empty, THEN
+ *      FOR each bullet 
+ *          IF the bullet is active,
+ *              FOR each alien in the row
+ *                  IF the alien is active
+ *                      IF the alien and bullet collide, THEN
+ *                          destroy the alien
+ *                          render an explosion at the alien's location
+ *                          set the bullet as not active
+ *                          Check if each alien in the row is active,
+ *                              IF none are THEN set the row to empty
+ *                          Increment playerScore
+ *                          Return true to indicate collision
+ *                      ENDIF
+ *                  ENDIF
+ *              END FOR 
+ *          ENDIF
+ *      END FOR 
+ *  END IF
+ *  return false;
+ *******************************************************************************/
 bool Bullets::checkCollisions(AlienRow& alienRow){
   if(!alienRow.isEmpty()) {  // IF bottom row is not empty
     for(int i = 0; i < MAX_ACTIVE; ++i) { // For each bullet
@@ -390,6 +629,59 @@ bool Bullets::checkCollisions(AlienRow& alienRow){
   return false;
 }
 
+
+// Check for collision between two sprites
+// Returns false if no collision occured or true if they collide
+bool checkCollision(const AnimatedSprite& sprite1, const AnimatedSprite& sprite2) {
+    if(sprite1.getLocation().x >= sprite2.getLocation().x + sprite2.getWidth())
+        return false;
+    if(sprite1.getLocation().y >= sprite2.getLocation().y + sprite2.getHeight())
+        return false;
+    if(sprite2.getLocation().x >= sprite1.getLocation().x + sprite1.getWidth())
+        return false;
+    if(sprite2.getLocation().y >= sprite1.getLocation().y + sprite1.getHeight())
+        return false;
+    return true;
+}
+
+/************************** Function: explode() **************
+ * Description: This function will check for a collisionm between each alien in the
+ *  row and the player sprite or base. If a collision occurs the player's lives are decremented,
+ *  and explosion is rendered.
+ *
+ * Data Requirements:
+ *  Point2d location    // Location of the explosion
+ *  int delay           // How long to delay between animation frames
+ *
+ * Global Variables:
+ *  None
+ *
+ * Formulas:
+ *  none
+ *
+ * Refined Algorithm
+ *  Set location of explosion sprite
+ *  Copy sprite location to render rectangle
+ *  FOR each explosion frame
+ *      Advance to next frame
+ *      Draw explosion to the render
+ *      Present the render
+ *      Delay a bit
+ *  END FOR
+ *******************************************************************************/
+void explode(const Point2d& location, int delay) {
+
+  explosion->setLocation(location);
+  explosion->update();
+
+  for(int pos = 0; pos < 16; pos++) {
+    explosion->nextFrame();
+    explosion->draw();
+    SDL_RenderPresent(SDL::renderer);
+    SDL_Delay(delay);
+  }
+}
+
 // Override Operator<< to print to screen
 // Print sprite info to the screen
 std::ostream& operator<<(std::ostream& out, const AnimatedSprite& sprite) {
@@ -407,33 +699,6 @@ std::ostream& operator<<(std::ostream& out, const AnimatedSprite& sprite) {
     << "  Delay: " << sprite.frameCounter << " / " << sprite.FRAME_DELAY << '\n';
 
   return out;
-}
-
-// Check for collision between two sprites
-// Returns false if no collision occured or true if they collide
-bool checkCollision(const AnimatedSprite& sprite1, const AnimatedSprite& sprite2) {
-    if(sprite1.getLocation().x >= sprite2.getLocation().x + sprite2.getWidth())
-        return false;
-    if(sprite1.getLocation().y >= sprite2.getLocation().y + sprite2.getHeight())
-        return false;
-    if(sprite2.getLocation().x >= sprite1.getLocation().x + sprite1.getWidth())
-        return false;
-    if(sprite2.getLocation().y >= sprite1.getLocation().y + sprite1.getHeight())
-        return false;
-    return true;
-}
-
-void explode(const Point2d& location, int delay) {
-
-  explosion->setLocation(location);
-  explosion->update();
-
-  for(int pos = 0; pos < 16; pos++) {
-    explosion->nextFrame();
-    explosion->draw();
-    SDL_RenderPresent(SDL::renderer);
-    SDL_Delay(delay);
-  }
 }
 
 // Print info for an Alien object

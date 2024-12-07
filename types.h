@@ -27,6 +27,8 @@ enum class Direction : int {
   left = -1         // X-Direction = -1
 };
 
+// Hold the rank for an alien row
+// Rank can be used as an index
 enum class Rank : int {
   first = 0,
   second = 1,
@@ -34,6 +36,7 @@ enum class Rank : int {
   fourth = 3
 };
 
+// Convert a hex color value to an RGB object
 const RGB hexToRGB(std::string hex);
 std::ostream& operator<<(std::ostream& out, const Direction& direction);
 

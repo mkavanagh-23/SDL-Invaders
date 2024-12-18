@@ -35,24 +35,6 @@ std::ostream& operator<<(std::ostream& out, const Direction& direction) {
   return out;
 }
 
-/************************** Function: hexToRGB *********************************
- * Description: This function will take in a color hex value and convert it to
- *  an RGB color object to be passed to other functions
- *
- * Data Requirements:
- *  std::string hex
- *
- * Global Variables:
- *  None
- *
- * Formulas:
- *  none
- *
- * Refined Algorithm
- *  Store hex value in a temp string for processing
- *  Check if string starts with a "#" and remove it if so
- *  Cast each pair of color values to an integer and store in an RGB object *  
- ******************************************************************************/
 const RGB hexToRGB(const std::string hex) {
   std::string hexColor{ hex };  // Store the value in a temp string for processing
   if(hexColor[0] == '#') {    // If first character is '#', 

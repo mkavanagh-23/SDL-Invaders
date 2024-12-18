@@ -4,69 +4,6 @@
 //    Project > Build options... > Check the box to compile using g++14
 //    ** See further instructions and screenshots in D2L submission and README.md **
 //
-/***************************** Prologue Section ********************************
- * Title: SDL Invaders - CSC222 Final Project
- * Author: Matthew Kavanagh
- * Date: 6 December, 2024
- * Course & Section: CSC 222-301W
- * Description: This program will render a playable one-player "Space Invaders" game.
- *  The game consists of three rounds of play where the player battles 40 randomly
- *  generated alien ufo enemies. The player gains one point for each alien destroyed,
- *  and loses one of their three lives each time an alien collides with them or the base
- *  they are guarding. Each round advances when all 40 aliens have been cleared. Rounds get 
- *  progressively more difficult. Clear alln3 rounds to win the game.
- *
- * Controls:
- *  Left Key    // Move the player left
- *  Right Key   // Move the player right
- *  Space Key   // Fire a bullet
- *  Esc Key     // End the game
- *
- * Data Requirements:
- *    background.h / background.cpp   // Contain all background objects and functions
- *    engine.h / engine.cpp           // Contain all SDL objects and functions
- *    settings.h                      // Contain global game settings
- *    sprite.h / sprite.cpp           // Contain all objects and functions for animated sprites
- *    types.h / types.cpp             // User-defined datatypes and related functions
- *
- *    ** All headers contain declarations and class definitions, cpp files contain function definitions and initializations
- *
- * Refined Algorithms (see headers for class definitions):
- *  background.cpp:
- *    **Contains background and tilemap functions
- *    **No new functions from in-class
- *
- *  engine.cpp:
- *    **Wrapper for SDL functions
- *    **No new functions from in-class
- *
- *  main.cpp (this file):
- *    int main()
- *    void game::draw()                   // Draw all active objects
- *    void game::nextRound()              // Progress to next round
- *    void game::displayMenu(const Uint8* pressedKeys)  // Display selected menu until space
- *  sprite.cpp:
- *    class AnimatedSprite:
- *      AnimatedSprite()                  // Constructor and derivatives
- *      bool move()                   // Move the sprite in the current direction
- *    class Alien (inherits AnimatedSprite):
- *      Alien()                     // Constructor
- *      void moveDown()             // Move the alien down a row and flip direction
- *      void destroy()              // Destroy the alien object and prevent it from rendering
- *    class AlienRow:
- *      void resetLocation()        // Reset all aliens to their starting location
- *      void resetRound(int round)           // Set all variables for the current round
- *      void update()               // Update each alien render position
- *      bool checkCollisions()      // Check for collisions between alien row and player
- *    struct Bullets:
- *      void fire(const sprite&)  // Fire bullet from center of given sprite
- *      bool checkCollisions(alienRow)  // Check collision between active bullets and each alien in row
- *    void explode(const Point2d&, int)       // Explosion animation at given location and delay time
- *
- *  types.cpp
- *    RGB hexToRGB(std::string hex)   // Covert a hex color value to R,G,B values
- *
- ******************************************************************************/
 
 #include <cstdio>
 #include <cstdlib>
@@ -135,81 +72,8 @@ namespace game {
   void drawExplosion();
 }
 
-/************************** Function: main() *****************************
- * Description: This function will handle the main game loop. It will take in key presses
- *  and handle rendering of menus, and all game objects. The game will also handle all logical checking
- *  for game state.
-
- * Data Requirements:
- *  const Uint8* keys     // Holds the key presses
- *  
- *
- * Global Variables:
- *  int playerScore       // Player's score
- *  int playerLives       // Player's lives
- *  int currentRound      // The current round of play
- *  const int MAX_ROUNDS; // Maximum number of rounds of play
- *  bool newRound;        // Do we need to set up the next round?
- *  bool playGame;        // Menu state variable
- *  bool startRound;      // Start the next round
- *  bool menuDeleted;     // Did we delete the menu object?
- *  bool playerWin;       // Did the player win?
- *
- * Formulas:
- *  none
- *
- * Refined Algorithm
- *  Print out name
- *  Initialize game variables
- *    IF !init(),
- *      THEN print error message and exit
- *    ENDIF
- *  BEGIN GAME LOOP
- *  While(ProgramIsRunning)
- *    Get key presses from user
- *    IF Escape,
- *      THEN, break from game loop
- *    ENDIF
- *    IF left,
- *      THEN, set player direction to left and move
- *    ENDIF
- *    IF right,
- *      THEN, set player direction to right and move
- *    ENDIF
- *  IF !(playGame)
- *      THEN, display start menu
- *  ELSE PLAY GAME
- *    IF(newRound)
- *      THEN, update variables for next round
- *     ENDIF
- *    IF !(startRound)
- *      THEN, set menu to current round and display menu
- *    ENDIF
- *    ELSE PLAY GAME
- *      Increment bullet timer
- *      IF player pressed space
- *        THEN, fire bullet
- *       ENDIF
- *      Update all game objects
- *      Draw all game objects
- *      Check collisions between active bullets and aliens
- *      Check collisions between player and aliens
- *        IF collide,
- *          THEN, reset sprite locations
- *      Check for player loss
- *        IF(playerLives <= 0) THEN set win to false and break
- *      Check for player win
- *        IF(each row is empty and round is 3) THEN set win to true and break
- *        Else if each row is empty set newRound to true
- *      ENDIF
- *    ENDIF
- *  END GAME LOOP
- *  Display end menu
- *******************************************************************************/
-
+// Begin main function
 int main(int argc, char* argv[]) {
-  std::cout << "Matthew Kavanagh\nCSC-222-301W | Fall 2024\nSUNY OCC\nFinal Project\n\n";
-  
   // Initialize libraries and static data members
   // Check for successful initialization, exit if it failed
   if(!game::init()) {
@@ -453,36 +317,6 @@ void game::update() {
     }
 }
 
-/************************** Function: game::draw() *****************************
- * Description: This function will draw a single frame of the game and update 
- *  the window title.
- *
- * Data Requirements:
- *  None
- *
- * Global Variables:
- *  int playerScore         // Player's score
- *  int playerLives         // Player's lives
- *
- * Formulas:
- *  none
- *
- * Refined Algorithm
- *  Set the window title
- *      Store player score and player lives in a char buffer
- *      Set window title to char buffer
- *  Draw the frame
- *      Clear renderer
- *      Draw the background
- *      Draw the tilemap
- *      Draw the player
- *      Draw the topRow
- *      Draw the upperRow
- *      Draw the lowerRow
- *      Draw the bottomRow
- *      Present the render to the screen
- *      Wait a bit
- *******************************************************************************/
 void game::draw() {
     // Set the window title
     char title[64];
@@ -528,49 +362,6 @@ void game::setMenu(int round) {
   }
 }
 
-/************************** Function: game::displayMenu() *****************************
- * Description: This function will display a menu screen until the player presses 'SPACE'
- *
- * Data Requirements:
- *  const Uint8* pressedKeys       //   Player keypresses as input parameter
- *
- * Global Variables:
- *  int playerScore
- *  int playerLives
- *  bool startRound     // Tracks if the menu is for the start of a round
- *  bool playGame       // Tracks whether the user has passed the start menu
- *
- * Local Variables:
- *  bool end            // Boolean flag to exit the menu
- *
- * Formulas:
- *  none
- *
- * Refined Algorithm
- *  Set the window title
- *  Check if player pressed start
- *      IF keys(SPACE), THEN set game/round flags
- *          IF (playGame == True), THEN start the round
- *              startRound = True
- *          ELSE start the game
- *              playGame = True
- *          ENDIF
- *          Delay a bit
- *          Reset player position
- *          Set loop flag to end
- *      END IF 
- *   Advance player to nexrt frame and update
- *   Advance start icon to nect frame
- *   Scroll background
- *   Clear render
- *   Draw all objects to render
- *   Present render
- *   IF(end), THEN
- *      Delete the logo object
- *   ENDIF
- *   Delay a bit
- * 
- *******************************************************************************/
 void game::displayMenu(const Uint8* pressedKeys) {
   // Set the window title
   char title[64];
@@ -633,30 +424,6 @@ void game::displayEnd() {
   }
 }
 
-/************************** Function: game::nextRound() ************************
- * Description: This function will update the game variables and state for the next
- *  round of play
- *
- * Data Requirements:
- *  None
- *
- * Global Variables:
- *  int currentRound         // Player's score
- *  int newRound         // Player's lives
- *  int startRound
- *
- * Formulas:
- *  none
- *
- * Refined Algorithm
- *  Set round progression flags
- *      Increment currentRound
- *      Set newRound flag to false
- *      Set startRound flag to false
- *  Increase background scroll speed
- *  Reset state of all alien rows
- *  Reset player position
- *******************************************************************************/
 void game::nextRound() {
   // Increment round counter and reset newRound flag
   currentRound++;

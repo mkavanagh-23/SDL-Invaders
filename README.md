@@ -1,15 +1,9 @@
-Matthew Kavanagh
-
-SUNY OCC
-
-CSC222-301W  | Fall 2024
-
 ![sdl invaders](https://github.com/mkavanagh-23/SDL-Invaders/blob/e50ce30b724bbab0c4b9557e076231643073594f/graphics/screenshot.png)
 
 **Build instruction:**
-- Requires the C++14 standard
-	-  In Code::Blocks: "Project" ---> ""Build Options..." ---> check the box for "Have g++ follow the C++14 ISO C++ language standard [-std=c++14]"
-	-  This should already be configured if opening the .cbp project file, however if issues occur please ensure this is checked.
+- Requires the C++14 standard amd SDL2
+- Run included linux build script
+- CMAKE build coming soon
 
 **Game Instructions:**
 

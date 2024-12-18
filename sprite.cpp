@@ -183,6 +183,12 @@ void AnimatedSprite::update() {
  *  Use spriteFrame and color members to calculate source x and y position
  *  Create the source and destination rectangles
  *******************************************************************************/
+
+void AnimatedSprite::resetAnimation() {
+  spriteFrame = 0;
+  frameCounter = 0;
+}
+
 Alien::Alien( int speed )
   : AnimatedSprite(alienSheetPath, 2, std::rand() % 50 + 30, speed)     // Set animation speed to a random value
 {
@@ -670,16 +676,11 @@ bool checkCollision(const AnimatedSprite& sprite1, const AnimatedSprite& sprite2
  *  END FOR
  *******************************************************************************/
 void explode(const Point2d& location, int delay) {
-
+  explosion->resetAnimation();
   explosion->setLocation(location);
   explosion->update();
+  explosion->isActive = true;
 
-  for(int pos = 0; pos < 16; pos++) {
-    explosion->nextFrame();
-    explosion->draw();
-    SDL_RenderPresent(SDL::renderer);
-    SDL_Delay(delay);
-  }
 }
 
 // Override Operator<< to print to screen

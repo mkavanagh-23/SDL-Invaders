@@ -10,7 +10,8 @@
 class AnimatedSprite {
   protected:
     SDL_Texture* textureSheet = NULL; // Texture for entire sheet
-
+  public:
+    bool isActive = true;
   protected:
     //Render variables
     const std::string PATH = ""; // Path to bitMap texture file
@@ -32,7 +33,7 @@ class AnimatedSprite {
     Point2d position = { 0, 0 };  // Current sprite location
     RGB transparency; // Sprite transparency color
     //bool isDestroyed = false; // Sprite destruction state
-    //bool isExploded = false;  // Sprite explosion state 
+    //bool isExploded = false;  // Sprite explosion state
 
   public:
     AnimatedSprite(std::string filePath, int frames, int frameDelay, const RGB& transparencyColor);
@@ -55,6 +56,8 @@ class AnimatedSprite {
     void setSpeed(const int speed);
     bool move();
     void update();
+    bool atEnd() { return spriteFrame >= (MAX_SPRITE_FRAME - 1); }
+    void resetAnimation();
 };
 
 bool checkCollision(const AnimatedSprite& sprite1, const AnimatedSprite& sprite2);

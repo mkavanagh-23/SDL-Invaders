@@ -132,6 +132,7 @@ namespace game {
   void setMenu(int round);      // Set which menu to display between each round
   void displayMenu(const Uint8* pressedKeys);   // Display a start menu
   void displayEnd();    // Display win or lose message at the end
+  void drawExplosion();
 }
 
 /************************** Function: main() *****************************
@@ -378,6 +379,7 @@ void createObjects() {
   start->setLocation({(settings::SCREEN_WIDTH - start->getWidth()) / 2, settings::SCREEN_HEIGHT - (2 * player->getHeight() + 30)});
   start->update();
   player->setSpeed(5);
+  explosion->isActive = false;
 }
 
 // Instantiate all alien objects with given speed
@@ -442,6 +444,13 @@ void game::update() {
     lowerRow->update();
     bottomRow->update();
     bullets->update();
+    if(explosion->atEnd()) {
+      explosion->isActive = false;
+    }
+    if(explosion->isActive) {
+      explosion->nextFrame();
+      explosion->update();
+    }
 }
 
 /************************** Function: game::draw() *****************************
@@ -490,8 +499,15 @@ void game::draw() {
     lowerRow->draw();
     bottomRow->draw();
     bullets->draw();
+    drawExplosion();
     SDL_RenderPresent(SDL::renderer);
     SDL_Delay(20);
+}
+
+void game::drawExplosion() {
+  if(explosion->isActive) { // Check if explosion has been triggered
+    explosion->draw(); 
+  }
 }
 
 void game::setMenu(int round) {

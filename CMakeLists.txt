@@ -24,12 +24,10 @@ target_include_directories(SDL-Invaders
 
 # Add third-party libraries
 add_subdirectory(external/SDL2)
-add_subdirectory(external/SDL2-Image)
 
 # Link the external libraries
 target_link_libraries(SDL-Invaders PRIVATE 
   SDL2
-  SDL2_image
 )
 
 # Set rpath for SDL2 libraries on macOS
@@ -50,7 +48,6 @@ add_custom_command(
   TARGET SDL-Invaders POST_BUILD COMMAND
   ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:SDL2>"
-    "$<TARGET_FILE:SDL2_image>"
     "$<TARGET_FILE_DIR:SDL-Invaders>"
   VERBATIM
 )

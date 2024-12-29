@@ -3,7 +3,7 @@
 **Build instruction:**
 - Clone the repository recursively
 ```
-git clone --recurse-submodules git@github.com/mkavanagh-23/SDL-Invaders.git
+git clone --recurse-submodules https://github.com/mkavanagh-23/SDL-Invaders.git
 ```
 - Build with CMake
 ```

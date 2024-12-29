@@ -14,6 +14,9 @@ set(SOURCES
 
 # Output final executable in project root
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_SOURCE_DIR}/Debug)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_SOURCE_DIR})
+
 add_executable(SDL-Invaders ${SOURCES})
 
 # Include directories
@@ -37,7 +40,6 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Link SDL2main if building for Windows
 if(WIN32)
-  #set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
   target_link_libraries(
     SDL-Invaders PRIVATE SDL2main
   )

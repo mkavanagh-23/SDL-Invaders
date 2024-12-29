@@ -1,4 +1,5 @@
 #include "../include/types.h"
+#include <string>
 #include <cstdint>
 #include <iostream>
 

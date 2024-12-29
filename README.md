@@ -1,6 +1,9 @@
 ![sdl invaders](https://github.com/mkavanagh-23/SDL-Invaders/blob/e50ce30b724bbab0c4b9557e076231643073594f/graphics/screenshot.png)
 
 **Build instruction:**
+Requires Visual Studio Build Tools (Windows) or GCC (Unix).
+
+
 - Clone the repository recursively
 ```
 git clone --recurse-submodules https://github.com/mkavanagh-23/SDL-Invaders.git

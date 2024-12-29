@@ -1,9 +1,14 @@
 ![sdl invaders](https://github.com/mkavanagh-23/SDL-Invaders/blob/e50ce30b724bbab0c4b9557e076231643073594f/graphics/screenshot.png)
 
 **Build instruction:**
-- Requires the C++14 standard amd SDL2
-- Run included linux build script
-- CMAKE build coming soon
+- Clone the repository recursively
+`git clone --recurse-submodules git@github.com/mkavanagh-23/SDL-Invaders.git`
+- Build with CMake
+```
+cmake -B build
+cmake --build build
+```
+
 
 **Game Instructions:**
 

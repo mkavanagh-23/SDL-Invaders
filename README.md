@@ -2,7 +2,7 @@
 
 **Build Instructions:**
 
-Requires Visual Studio Build Tools (Windows) or GCC (Unix).
+Requires [Visual Studio Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe) (Windows) or GCC (Unix).
 
 
 - Clone the repository recursively
@@ -12,7 +12,7 @@ git clone --recurse-submodules https://github.com/mkavanagh-23/SDL-Invaders.git
 - Build with CMake
 ```
 cmake -B build
-cmake --build build
+cmake --build build --config Release
 ```
 
 

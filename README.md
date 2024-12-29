@@ -1,6 +1,7 @@
 ![sdl invaders](https://github.com/mkavanagh-23/SDL-Invaders/blob/e50ce30b724bbab0c4b9557e076231643073594f/graphics/screenshot.png)
 
-**Build instruction:**
+**Build Instructions:**
+
 Requires Visual Studio Build Tools (Windows) or GCC (Unix).
 
 

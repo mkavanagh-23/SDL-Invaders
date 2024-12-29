@@ -11,9 +11,32 @@ set(SOURCES
     src/sprite.cpp
     src/types.cpp
 )
-
 add_executable(SDL-Invaders ${SOURCES})
 
 target_include_directories(SDL-Invaders
-    PRIVATE
-        ${PROJECT_SOURCE_DIR}/include/
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+)
+
+add_subdirectory(external/SDL2)
+add_subdirectory(external/SDL2-Image)
+
+target_link_libraries(SDL-Invaders PRIVATE 
+  SDL2
+  SDL2_image
+)
+
+if (WIN32)
+  target_link_libraries(
+    SDL-Invaders PRIVATE SDL2main
+  )
+endif()
+
+add_custom_command(
+  TARGET SDL-Invaders POST_BUILD COMMAND
+  ${CMAKE_COMMAND} -E copy_if_different
+    $<TARGET_FILE:SDL2>
+    $<TARGET_FILE:SDL2_image>
+    $<TARGET_FILE_DIR:SDL-Invaders>
+  VERBATIM
+)

@@ -1,10 +1,3 @@
-// NOTE: MUST BE COMPILED WITH std=C++14 or higher
-// IN CODE BLOCKS DO THE FOLLOWING:
-//
-//    Project > Build options... > Check the box to compile using g++14
-//    ** See further instructions and screenshots in D2L submission and README.md **
-//
-
 #include <cstdio>
 #include <cstdlib>
 #include <ctime>
@@ -13,11 +6,11 @@
 #include <ostream>
 #include <string>
 #include <SDL2/SDL.h>
-#include "engine.h"
-#include "types.h"
-#include "sprite.h"
-#include "background.h"
-#include "settings.h"
+#include "../include/engine.h"
+#include "../include/types.h"
+#include "../include/sprite.h"
+#include "../include/background.h"
+#include "../include/settings.h"
 
 
 /****************************** GLOBAL DATA ***********************************/
@@ -74,6 +67,20 @@ namespace game {
 
 // Begin main function
 int main(int argc, char* argv[]) {
+  // Print out directions
+  std::cout << "Directions:\n";
+  std::cout << "  Your spaceship is under attack! Fend off the invading waves of alien\n"
+            << "    invaders coming to attack your ship.\n";
+  std::cout << "  Gameplay consists of three rounds of invading aliens, each at an increasing speed.\n"
+            << "  For each alien destroyed, the player gains one point. However, if an alien reaches the player or their base,\n"
+            << "    the player loses a life. The player only has 3 lives.\n"
+            << "  Survive all 3 rounds to win!\n\n";
+  std::cout << "Controls:\n";
+  std::cout << "  LEFT/RIGHT KEYS:   Move spaceship left/right\n"
+            << "  SPACE KEY:         Fire a bullet\n"
+            << "  ESC KEY:           End the game at any time\n\n";
+  std::cout << "Good luck and have fun!\n" << std::endl;
+
   // Initialize libraries and static data members
   // Check for successful initialization, exit if it failed
   if(!game::init()) {

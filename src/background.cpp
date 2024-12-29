@@ -1,6 +1,6 @@
-#include "background.h"
-#include "engine.h"
-#include "settings.h"
+#include "../include/background.h"
+#include "../include/engine.h"
+#include "../include/settings.h"
 #include <fstream>
 
 // Constructor

@@ -1,5 +1,5 @@
-#include "engine.h"
-#include "settings.h"
+#include "../include/engine.h"
+#include "../include/settings.h"
 #include <SDL2/SDL.h>
 #include <string>
 #include <iostream>
@@ -78,7 +78,7 @@ namespace SDL {
       return false;
     }
 
-    gameWindow = SDL_CreateWindow("Matthew Kavanagh  |  CSC222-301W  |  Final Project  |  SDL Invaders", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
+    gameWindow = SDL_CreateWindow("SDL Invaders", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, settings::SCREEN_WIDTH, settings::SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
     renderer = SDL_CreateRenderer(gameWindow, -1, 0);
     
     std::srand(std::time(0)); // Seed the random number generator for object creation

@@ -1,7 +1,7 @@
-#include "sprite.h"
-#include "settings.h"
-#include "engine.h"
-#include "types.h"
+#include "../include/sprite.h"
+#include "../include/settings.h"
+#include "../include/engine.h"
+#include "../include/types.h"
 #include <cstdlib>
 #include <string>
 #include <SDL2/SDL.h>

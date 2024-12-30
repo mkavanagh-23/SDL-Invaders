@@ -1,4 +1,4 @@
-CSC222-Final
 SDL-Invaders
-outputs/
 build/
+SDL2.dll
+lib*

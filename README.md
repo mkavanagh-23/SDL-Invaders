@@ -14,6 +14,26 @@ A cross-platform Space Invaders-like game utilizing SDL2. A fun project to expan
 
 ## Build Instructions:
 
+### Automated
+
+- Clone the repository recursively
+```
+git clone --recurse-submodules https://github.com/mkavanagh-23/SDL-Invaders.git
+```
+- Ensure you have installed CMake and a C++ compiler to your $PATH
+- Run the build script for your platform
+Linux/macOS:
+```
+./build_linux_macos.sh
+```
+Windows:
+```
+./build_windows.bat
+```
+
+
+### Manual
+
 - Clone the repository recursively
 ```
 git clone --recurse-submodules https://github.com/mkavanagh-23/SDL-Invaders.git

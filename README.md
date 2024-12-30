@@ -1,7 +1,7 @@
 # SDL INVADERS
 ![sdl invaders](https://github.com/mkavanagh-23/SDL-Invaders/blob/e50ce30b724bbab0c4b9557e076231643073594f/graphics/screenshot.png)
 
-A cross-platform Space Invaders-like game utilizing SDL2. A fun project to expand my game engine knowledge and learn cross-platform build systems.
+A cross-platform Space Invaders-like game utilizing SDL2. A fun project to expand my game engine knowledge and learn cross-platform build systems. Note that SDL is included as a submodule and compiled as a dynamically linked library.
 
 ## Dependencies
 

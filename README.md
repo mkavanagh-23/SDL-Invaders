@@ -1,9 +1,15 @@
 ![sdl invaders](https://github.com/mkavanagh-23/SDL-Invaders/blob/e50ce30b724bbab0c4b9557e076231643073594f/graphics/screenshot.png)
 
-**Build Instructions:**
+A cross-platform Space Invaders-like game utilizing SDL2. A fun project to expand my game engine knowledge and learn cross-platform build systems.
 
-Requires [Visual Studio Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe) (Windows) or GCC (Unix).
+## Dependencies
 
+- CMake
+- [Visual Studio Build Tools](https://aka.ms/vs/17/release/vs_BuildTools.exe) (Windows)
+- GCC (Unix).
+
+
+## Build Instructions:
 
 - Clone the repository recursively
 ```
@@ -16,7 +22,7 @@ cmake --build build --config Release
 ```
 
 
-**Game Instructions:**
+## Game Instructions:
 
 The game is similar to "Space Invaders": your ship is under attack and you must defend it from the invading aliens!
 

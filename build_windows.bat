@@ -6,4 +6,6 @@ cmake -B build
 echo Linking libraries...
 cmake --build build --config Release
 
-echo Build complete! './SDL-Invaders.exe to run!'
+echo Build complete! run SDL-Invaders.exe to play!
+echo Press any key to exit...
+pause

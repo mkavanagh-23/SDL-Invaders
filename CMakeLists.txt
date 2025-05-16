@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.16)
-
 set(CMAKE_CXX_STANDARD 20)
-
 project(SDL-Invaders VERSION 1.0.0)
 
 set(SOURCES
@@ -21,35 +19,19 @@ add_executable(SDL-Invaders ${SOURCES})
 
 # Include directories
 target_include_directories(SDL-Invaders
-  PRIVATE
-    ${PROJECT_SOURCE_DIR}/include
+    PRIVATE
+        ${PROJECT_SOURCE_DIR}/include
 )
 
-# Add third-party libraries
-add_subdirectory(external/SDL2)
+# Find system-installed SDL2
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SDL2 REQUIRED sdl2)
 
-# Link the external libraries
+# Link the SDL2 libraries
 target_link_libraries(SDL-Invaders PRIVATE 
-  SDL2
+    ${SDL2_LIBRARIES}
 )
 
-# Set rpath for SDL2 libraries on macOS
-set(CMAKE_INSTALL_RPATH "@executable_path")
-# For SDL2_image (or other libraries), you might also want to add it
-set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-
-# Link SDL2main if building for Windows
-if(WIN32)
-  target_link_libraries(
-    SDL-Invaders PRIVATE SDL2main
-  )
-endif()
-
-# Copy runtime DLLs to the output directory
-add_custom_command(
-  TARGET SDL-Invaders POST_BUILD COMMAND
-  ${CMAKE_COMMAND} -E copy_if_different
-    "$<TARGET_FILE:SDL2>"
-    "$<TARGET_FILE_DIR:SDL-Invaders>"
-  VERBATIM
-)
+# Add SDL2 include directories and compiler flags
+target_include_directories(SDL-Invaders PRIVATE ${SDL2_INCLUDE_DIRS})
+target_compile_options(SDL-Invaders PRIVATE ${SDL2_CFLAGS_OTHER})
